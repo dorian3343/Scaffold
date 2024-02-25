@@ -20,6 +20,7 @@ controller(s): # This is the entry point of the controller definition
 ```YAML
 server: # This is the entry point of the server definition
   port: 80 # The port that the endpoint server should use.
+  target-log: ./main.json #This sets the output for logging, if its empty it just logs to stdout
   service(s): # This is the entry point of the service(s) definition, where you attach endpoints to logic.
     - controller: example # This calls the controller with the name 'example'
       route: /Example # This exposes the server endpoint at 'http://yourIpHere:port/Example'
@@ -78,6 +79,7 @@ controller(s):
     name: main_controller
 server:
   port: 8080
+  target-log: ./main.json
   service(s):
     - controller: main_controller
       route: /Greeting
