@@ -42,6 +42,32 @@ database: # This is the entry point of the database definition
 Currently model's can't be generated. WIP
 ```
 
+## Defining multiple values (Controllers etc )
+Using YAML's Array syntax you can define multiple values, 
+if multiple values are allowed the name will end with (s) 'controller(s) , service(s) etc'
+```yaml
+# Example with Controller's
+controller(s):
+  - fallback: Hello world
+    name: main_controller
+  - fallback: Hello from scaffold
+    name: second_controller
+  - fallback: 79
+    name: int_controller
+  - fallback: {"key":"value"}
+    name: obj_controller
+
+#Exaple with Service's
+service(s):
+  - controller: main_controller
+    route: /Greeting
+  - controller: second_controller
+    route: /new_example
+  - controller: int_controller
+    route: /get_int
+  - controller: obj_controller
+    route: /get_obj
+```
 ## Examples
 
 ---
@@ -71,9 +97,6 @@ controller(s):
     name: 
     model:
     CORS:
-  - fallback: 
-    name: 
-    model:
 server:
   port: 
   service(s):
