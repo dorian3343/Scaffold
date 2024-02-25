@@ -92,7 +92,7 @@ database:
   init-query: 
   path:
 model(s):
-  - query-template:
+    - query-template:
       json-template:
       name:
 controller(s):
