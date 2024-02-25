@@ -100,6 +100,7 @@ controller(s):
     model:
     CORS:
 server:
+  target-log:
   port: 
   service(s):
     - controller:
