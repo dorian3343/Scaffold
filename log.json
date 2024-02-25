@@ -1,0 +1,11 @@
+{"level":"trace","time":"2024-02-25T16:50:25+01:00","message":"New Route : | /test : main_controller"}
+{"level":"trace","time":"2024-02-25T16:50:25+01:00","message":"New Route : | /test2 : second_controller"}
+{"level":"info","time":"2024-02-25T16:50:25+01:00","message":"Finished initialization : Starting server..."}
+{"level":"trace","time":"2024-02-25T16:50:49+01:00","message":"New Route : | /test : main_controller"}
+{"level":"trace","time":"2024-02-25T16:50:49+01:00","message":"New Route : | /test2 : second_controller"}
+{"level":"info","time":"2024-02-25T16:50:49+01:00","message":"Finished initialization : Starting server..."}
+{"level":"warn","time":"2024-02-25T16:53:47+01:00","message":"Missing Database in main.yml : Models are disabled"}
+{"level":"info","time":"2024-02-25T16:53:47+01:00","message":"Finished initialization : Starting server..."}
+{"level":"warn","time":"2024-02-25T16:54:17+01:00","message":"Missing Database in main.yml : Models are disabled"}
+{"level":"trace","time":"2024-02-25T16:54:17+01:00","message":"New Route : | /Greeting : main_controller"}
+{"level":"info","time":"2024-02-25T16:54:17+01:00","message":"Finished initialization : Starting server..."}

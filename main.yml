@@ -1,0 +1,8 @@
+controller(s):
+  - fallback: Hello world
+    name: main_controller
+server:
+  port: 8080
+  service(s):
+    - controller: main_controller
+      route: /Greeting
