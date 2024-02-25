@@ -1,4 +1,5 @@
 # Scaffold
+<img src="https://img.shields.io/badge/Sqlite-003B57?style=for-the-badge&logo=sqlite&logoColor=white" />   <img src="https://img.shields.io/badge/Go-00ADD8?style=for-the-badge&logo=go&logoColor=white" />   
 
 ---
 A repetitive backend generator. Generate endpoints, quickly and with as few LOC's as possible.
