@@ -2,10 +2,13 @@ package controller
 
 import (
 	"encoding/json"
+	"errors"
+	"fmt"
 	"github.com/rs/zerolog/log"
 	"io"
 	"net/http"
 	"service/model"
+	"slices"
 )
 
 /*
@@ -106,4 +109,40 @@ func (c Controller) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+}
+
+// Sets up and attaches the controllers to http at the proper routes
+func SetupControllers(services map[string]Controller) {
+	/* Setup http handling : Controllers + Models + main http server */
+	fmt.Println("---------Tree------------")
+	var wrn []string
+
+	for route, handler := range services {
+
+		log.Trace().Msgf("New Route : | %s : %s", route, handler.Name)
+		if route == "" {
+			log.Fatal().Err(errors.New("Missing route")).Msg("Something went wrong with setting up Controllers")
+		}
+
+		http.Handle(route, handler)
+		if handler.Name == "" {
+			wrn = append(wrn, fmt.Sprintf("Empty controller for Route: '%s'", route))
+		}
+
+		// Check for empty fallbacks
+		e := []byte("null")
+		if slices.Equal(e, handler.Fallback) {
+			wrn = append(wrn, fmt.Sprintf("Empty Fallback for Route: '%s'", route))
+		}
+
+	}
+	fmt.Println("---------Tree------------")
+
+	/* print tree warnings */
+	if len(wrn) != 0 {
+		for i := 0; i < len(wrn); i++ {
+			log.Warn().Msg(wrn[i])
+		}
+	}
+
 }

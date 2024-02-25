@@ -6,14 +6,13 @@ import (
 	"os"
 )
 
-func Setup(query string, databaseName string) *sql.DB {
+func Setup(query string, databaseName string) (*sql.DB, func()) {
 	/* Check if Database file exists */
 	_, err := os.Stat(databaseName)
 	if os.IsNotExist(err) {
 		_, err2 := os.Create(databaseName)
 		if err2 != nil {
 			log.Fatal().Err(err).Msg("Something went wrong with creating Database")
-			return nil
 		}
 	}
 	// Create the Connection
@@ -25,8 +24,12 @@ func Setup(query string, databaseName string) *sql.DB {
 	_, err = db.Exec(query)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Fatal Error during table setup")
-		return nil
 	}
 
-	return db
+	closeDB := func() {
+		if err := db.Close(); err != nil {
+			log.Fatal().Err(err).Msg("Failed to close the database")
+		}
+	}
+	return db, closeDB
 }

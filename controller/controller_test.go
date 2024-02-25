@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"bytes"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -12,7 +13,7 @@ import (
 /*Testing for a no model Controller using the fallback string*/
 func TestController_ServeHTTP_BasicString(t *testing.T) {
 	x, _ := json.Marshal("Hello World")
-	c := Create("/basicTest", nil, x, false)
+	c := Create("basicTest", nil, x, false)
 	req := httptest.NewRequest("GET", "http://google.com", nil)
 	w := httptest.NewRecorder()
 	c.ServeHTTP(w, req)
@@ -37,7 +38,7 @@ func TestController_ServeHTTP_BasicString(t *testing.T) {
 /*Testing for a no model Controller using the fallback string*/
 func TestController_ServeHTTP_BasicInt(t *testing.T) {
 	x, _ := json.Marshal(69)
-	c := Create("/basicTest", nil, x, false)
+	c := Create("basicTest", nil, x, false)
 	req := httptest.NewRequest("GET", "http://google.com", nil)
 	w := httptest.NewRecorder()
 	c.ServeHTTP(w, req)
@@ -75,7 +76,7 @@ func TestController_ServeHTTP_Struct(t *testing.T) {
 	}
 
 	// Create a request using the input data
-	c := Create("/basicTest", nil, requestData, false)
+	c := Create("basicTest", nil, requestData, false)
 	req := httptest.NewRequest("GET", "http://google.com", nil)
 	w := httptest.NewRecorder()
 
@@ -103,7 +104,7 @@ func TestController_ServeHTTP_Struct(t *testing.T) {
 }
 
 func TestController_Create(t *testing.T) {
-	expectedName := "/test"
+	expectedName := "test"
 	expectedFallback, _ := json.Marshal(69)
 
 	// Call the Create function
@@ -116,5 +117,54 @@ func TestController_Create(t *testing.T) {
 
 	if !reflect.DeepEqual(c.Fallback, expectedFallback) {
 		t.Errorf("Expected fallback %#v, got %#v", expectedFallback, c.Fallback)
+	}
+}
+
+func TestSetupControllers(t *testing.T) {
+	// Initialize Services map
+	Services := make(map[string]Controller)
+
+	// Marshal fallback responses
+	Fallback1, _ := json.Marshal(69)
+	Fallback2, _ := json.Marshal("Hello World")
+
+	// Create controllers and add them to Services map
+	Services["/get_int"] = Create("int_controller", nil, Fallback1, true)
+	Services["/get_str"] = Create("str_controller", nil, Fallback2, true)
+
+	// Setup controllers
+	SetupControllers(Services)
+
+	// Test requests
+	testCases := []struct {
+		endpoint         string
+		expectedResponse []byte
+	}{
+		{"/get_int", Fallback1},
+		{"/get_str", Fallback2},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.endpoint, func(t *testing.T) {
+			// Create a request
+			req := httptest.NewRequest("GET", tc.endpoint, nil)
+			rr := httptest.NewRecorder()
+
+			// Handler for the given endpoint
+			handler := http.HandlerFunc(Services[tc.endpoint].ServeHTTP)
+
+			// Serve the request
+			handler.ServeHTTP(rr, req)
+
+			// Check the response status code
+			if status := rr.Code; status != http.StatusOK {
+				t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+			}
+
+			// Check the response body
+			if !bytes.Equal(rr.Body.Bytes(), tc.expectedResponse) {
+				t.Errorf("handler returned unexpected body: got %s want %s", rr.Body.String(), tc.expectedResponse)
+			}
+		})
 	}
 }

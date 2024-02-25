@@ -2,9 +2,11 @@ package configuration
 
 import (
 	"encoding/json"
+	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"gopkg.in/yaml.v3"
 	"io/ioutil"
+	"os"
 	"service/controller"
 	"service/model"
 )
@@ -46,7 +48,7 @@ type Server struct {
 	Services  map[string]controller.Controller
 }
 
-func (s server) Adapt(controllers []controller.Controller) Server {
+func (s server) adapt(controllers []controller.Controller) Server {
 	services := make(map[string]controller.Controller)
 
 	for i := 0; i < len(s.Services); i++ {
@@ -78,7 +80,7 @@ type Configuration struct {
 }
 
 // Adapt adapts the configuration, converting FallbackJSON to actual controllers.
-func (c configuration) Adapt() *Configuration {
+func (c configuration) adapt() *Configuration {
 	var controllers []controller.Controller
 	for i := 0; i < len(c.Controllers); i++ {
 		JSON, err := json.Marshal(c.Controllers[i].Fallback)
@@ -92,11 +94,11 @@ func (c configuration) Adapt() *Configuration {
 		Database:    c.Database,
 		Controllers: controllers,
 		Models:      nil,
-		Server:      c.Server.Adapt(controllers),
+		Server:      c.Server.adapt(controllers),
 	}
 }
 
-func Create(filename string) (*Configuration, error) {
+func create(filename string) (*Configuration, error) {
 	// Read YAML file
 	data, err := ioutil.ReadFile(filename)
 	if err != nil {
@@ -108,5 +110,37 @@ func Create(filename string) (*Configuration, error) {
 	if err != nil {
 		return nil, err
 	}
-	return config.Adapt(), nil
+	return config.adapt(), nil
+}
+
+// Setup the config + logging
+func Setup() (*Configuration, func()) {
+	conf, err := create("./main.yml")
+	if err != nil {
+		log.Fatal().Err(err).Msg("Something went wrong with generating config from main.yml")
+	}
+	targetLog := conf.Server.TargetLog
+
+	var multi zerolog.LevelWriter
+	var closeFile func()
+	if targetLog != "" {
+		/* Setup logging :  Get logging file and set MultiLevelWriting*/
+		file, err := os.OpenFile(targetLog, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0666)
+		if err != nil {
+			log.Fatal().Err(err).Msg("Error opening log file")
+		}
+		closeFile = func() {
+			err := file.Close()
+			if err != nil {
+				log.Fatal().Err(err).Msg("Error while closing log file")
+			}
+		}
+
+		multi = zerolog.MultiLevelWriter(zerolog.ConsoleWriter{Out: os.Stdout}, file)
+	} else {
+		multi = zerolog.MultiLevelWriter(zerolog.ConsoleWriter{Out: os.Stdout})
+	}
+
+	log.Logger = zerolog.New(multi).With().Timestamp().Logger()
+	return conf, closeFile
 }

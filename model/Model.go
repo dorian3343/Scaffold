@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"reflect"
+	"github.com/metalim/jsonmap"
 	"strings"
 )
 
@@ -19,40 +19,38 @@ func Create(db *sql.DB, template string, JSON interface{}) Model {
 	return Model{db: db, template: template, json: JSON}
 }
 
-func structToArray(s interface{}) ([]string, error) {
+// Converts maps  into Array
+func MapToArray(s interface{}) ([]string, error) {
+	if s == nil {
+		return nil, errors.New("Nil value Passed")
+	}
 	switch v := s.(type) {
-	case map[string]interface{}:
+	case *jsonmap.Map:
+		if v == nil {
+			return nil, errors.New("Nil value passed")
+		}
 		// Handle map type
-		var values []string
-		for x, val := range v {
-			fmt.Println(x)
-			values = append(values, fmt.Sprintf("%v", val))
+		var values = make([]string, 0)
+		val := v.Values()
+		for i := 0; i < len(val); i++ {
+			str := fmt.Sprintf("%v", val[i])
+			values = append(values, str)
 		}
-		return values, nil
-	case struct{}:
-		// Handle struct type
-		st := reflect.TypeOf(s)
-		sv := reflect.ValueOf(s)
-		values := make([]string, st.NumField())
-		for i := 0; i < st.NumField(); i++ {
-			fieldValue := sv.Field(i)
-			values[i] = fmt.Sprintf("%v", fieldValue.Interface())
-		}
+
 		return values, nil
 	default:
 		return nil, errors.New("unsupported type")
 	}
 }
 
+// fills out the query template with data from the json
 func (m Model) Querybuilder(x []byte) (string, error) {
-	var jsonData interface{}
-
-	err := json.Unmarshal(x, &jsonData)
+	json1 := jsonmap.New()
+	err := json.Unmarshal(x, json1)
 	if err != nil {
 		return "", errors.New("failed to decode JSON data: " + err.Error())
 	}
-
-	arrayData, err := structToArray(jsonData)
+	arrayData, err := MapToArray(json1)
 	if err != nil {
 		return "", err
 	}
@@ -71,7 +69,6 @@ func (m Model) Querybuilder(x []byte) (string, error) {
 		args[i] = v
 	}
 
-	// Format the array data into a string using the provided template
 	return fmt.Sprintf(m.template, args...), nil
 }
 
