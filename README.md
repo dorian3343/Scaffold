@@ -58,7 +58,7 @@ controller(s):
   - fallback: {"key":"value"}
     name: obj_controller
 
-#Exaple with Service's
+#Example with Service's
 service(s):
   - controller: main_controller
     route: /Greeting
