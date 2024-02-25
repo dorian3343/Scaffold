@@ -11,6 +11,7 @@ import (
 	"os"
 	"service/configuration"
 	"service/database"
+	"slices"
 	"strconv"
 )
 
@@ -55,7 +56,7 @@ func main() {
 	}
 	/* Setup http handling : Controllers + Models + main http server */
 	fmt.Println("---------Tree------------")
-	flag := false
+	var wrn []string
 	for route, handler := range conf.Server.Services {
 		log.Trace().Msgf("New Route : | %s : %s", route, handler.Name)
 		if route == "" {
@@ -64,14 +65,22 @@ func main() {
 
 		http.Handle(route, handler)
 		if handler.Name == "" {
-			flag = true
+			wrn = append(wrn, fmt.Sprintf("Empty controller for Route: '%s'", route))
 		}
+		// Check for empty fallbacks
+		e := []byte("null")
+		if slices.Equal(e, handler.Fallback) {
+			wrn = append(wrn, fmt.Sprintf("Empty Fallback for Route: '%s'", route))
+		}
+
 	}
 	fmt.Println("---------Tree------------")
-	if flag {
-		log.Warn().Msg("Empty controller for route")
+	/* print tree warnings */
+	if len(wrn) != 0 {
+		for i := 0; i < len(wrn); i++ {
+			log.Warn().Msg(wrn[i])
+		}
 	}
-
 	log.Info().Msg("Finished initialization : Starting server...")
 	err = http.ListenAndServe(":"+strconv.Itoa(conf.Server.Port), nil)
 	if err != nil {
