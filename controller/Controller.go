@@ -18,16 +18,21 @@ type Controller struct {
 	Name     string
 	Model    *model.Model
 	Fallback []byte
+	CORS     bool
 	http.Handler
 }
 
 /* Constructor for the controller, outside of package used like this 'Controller.Create(x,y)' */
-func Create(name string, datamodel *model.Model, fallback []byte) Controller {
-	return Controller{Name: name, Model: datamodel, Fallback: fallback}
+func Create(name string, datamodel *model.Model, fallback []byte, cors bool) Controller {
+	return Controller{Name: name, Model: datamodel, Fallback: fallback, CORS: cors}
 }
 
 /* logic is the function to fulfill the http.Handler interface. */
 func (c Controller) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	//Enable CORS
+	if c.CORS {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+	}
 	if c.Model == nil {
 		_, err := w.Write(c.Fallback)
 		if err != nil {

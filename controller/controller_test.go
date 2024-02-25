@@ -12,7 +12,7 @@ import (
 /*Testing for a no model Controller using the fallback string*/
 func TestController_ServeHTTP_BasicString(t *testing.T) {
 	x, _ := json.Marshal("Hello World")
-	c := Create("/basicTest", nil, x)
+	c := Create("/basicTest", nil, x, false)
 	req := httptest.NewRequest("GET", "http://google.com", nil)
 	w := httptest.NewRecorder()
 	c.ServeHTTP(w, req)
@@ -37,7 +37,7 @@ func TestController_ServeHTTP_BasicString(t *testing.T) {
 /*Testing for a no model Controller using the fallback string*/
 func TestController_ServeHTTP_BasicInt(t *testing.T) {
 	x, _ := json.Marshal(69)
-	c := Create("/basicTest", nil, x)
+	c := Create("/basicTest", nil, x, false)
 	req := httptest.NewRequest("GET", "http://google.com", nil)
 	w := httptest.NewRecorder()
 	c.ServeHTTP(w, req)
@@ -75,7 +75,7 @@ func TestController_ServeHTTP_Struct(t *testing.T) {
 	}
 
 	// Create a request using the input data
-	c := Create("/basicTest", nil, requestData)
+	c := Create("/basicTest", nil, requestData, false)
 	req := httptest.NewRequest("GET", "http://google.com", nil)
 	w := httptest.NewRecorder()
 
@@ -107,7 +107,7 @@ func TestController_Create(t *testing.T) {
 	expectedFallback, _ := json.Marshal(69)
 
 	// Call the Create function
-	c := Create(expectedName, nil, expectedFallback)
+	c := Create(expectedName, nil, expectedFallback, false)
 
 	// Check if the fields of the created controller match the expected values
 	if c.Name != expectedName {

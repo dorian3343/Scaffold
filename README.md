@@ -13,7 +13,7 @@ controller(s): # This is the entry point of the controller definition
   - fallback: example #This is the fallback json the endpoint will return if the model is empty or returns an error.
     name: name1 #This the name of the controller, think of it as the id that is used to call it
     model: model1 # Put the name of the model you want to attach here
-    
+    CORS: true # Bool value that enables CORS, defaults to false
   #*Do not name multiple controller's the same way.
 ```
 ### Server
@@ -70,6 +70,7 @@ controller(s):
   - fallback:
     name: 
     model:
+    CORS:
   - fallback: 
     name: 
     model:

@@ -27,6 +27,7 @@ type Controller struct {
 	Fallback interface{} `yaml:"fallback"`
 	Name     string      `yaml:"name"`
 	Model    string      `yaml:"model"`
+	CORS     bool        `yaml:"CORS"`
 }
 
 /* Private server config to only be used for constructing the public one*/
@@ -82,7 +83,7 @@ func (c configuration) Adapt() *Configuration {
 		if err != nil {
 			log.Fatal().Err(err).Msg("JSON error in Controller : " + c.Controllers[i].Name)
 		}
-		newController := controller.Create(c.Controllers[i].Name, nil, JSON)
+		newController := controller.Create(c.Controllers[i].Name, nil, JSON, c.Controllers[i].CORS)
 		controllers = append(controllers, newController)
 	}
 	return &Configuration{
