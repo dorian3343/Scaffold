@@ -32,16 +32,18 @@ type Controller struct {
 
 /* Private server config to only be used for constructing the public one*/
 type server struct {
-	Port     int `yaml:"port"`
-	Services []struct {
+	Port      int    `yaml:"port"`
+	TargetLog string `yaml:"target-log"`
+	Services  []struct {
 		Route      string `yaml:"route"`
 		Controller string `yaml:"controller"`
 	} `yaml:"service(s)"`
 }
 
 type Server struct {
-	Port     int
-	Services map[string]controller.Controller
+	Port      int
+	TargetLog string
+	Services  map[string]controller.Controller
 }
 
 func (s server) Adapt(controllers []controller.Controller) Server {
@@ -57,7 +59,7 @@ func (s server) Adapt(controllers []controller.Controller) Server {
 		services[s.Services[i].Route] = cont
 	}
 
-	return Server{Port: s.Port, Services: services}
+	return Server{Port: s.Port, TargetLog: s.TargetLog, Services: services}
 }
 
 /* Private configuration is meant to be adapted to the public one by converting yaml to functions */
