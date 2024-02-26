@@ -6,17 +6,19 @@ import (
 	"errors"
 	"fmt"
 	"github.com/metalim/jsonmap"
+	"github.com/rs/zerolog/log"
 	"strings"
 )
 
 type Model struct {
+	Name     string
 	db       *sql.DB
 	template string
 	json     interface{}
 }
 
-func Create(db *sql.DB, template string, JSON interface{}) Model {
-	return Model{db: db, template: template, json: JSON}
+func Create(name string, db *sql.DB, template string, JSON interface{}) Model {
+	return Model{Name: name, db: db, template: template, json: JSON}
 }
 
 // Converts maps  into Array
@@ -45,6 +47,10 @@ func MapToArray(s interface{}) ([]string, error) {
 
 // fills out the query template with data from the json
 func (m Model) Querybuilder(x []byte) (string, error) {
+	if len(x) == 0 {
+		log.Warn().Msg("Empty JSON template so Query is sent as is.")
+		return m.template, nil
+	}
 	json1 := jsonmap.New()
 	err := json.Unmarshal(x, json1)
 	if err != nil {

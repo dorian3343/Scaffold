@@ -86,6 +86,33 @@ server:
       route: /Greeting
 
 ```
+
+### Template-less Model
+```yaml
+database:
+  init-query: | 
+    CREATE TABLE IF NOT EXISTS table1 (
+      id INTEGER PRIMARY KEY,
+      name TEXT NOT NULL,
+      age INTEGER
+    );
+  path: ./main.db
+model(s):
+  - query-template: INSERT INTO table1 (name, age) VALUES ('John Doe', 30);
+    json-template:
+    name: main_model
+controller(s):
+  - fallback: Something went wrong
+    name: main_controller
+    model: main_model
+server:
+  port: 8080
+  service(s):
+    - controller: main_controller
+      route: /Add_John
+
+```
+
 ### Empty
 ```YAML
 database:

@@ -10,7 +10,7 @@ import (
 	"os"
 	"service/controller"
 	database2 "service/database"
-	"service/model"
+	model2 "service/model"
 )
 
 type database struct {
@@ -28,13 +28,15 @@ func (d database) adapt(db *sql.DB) *Database {
 	return &Database{Db: db, InitQuery: d.InitQuery, Path: d.Path}
 }
 
-type Model struct {
+type model struct {
 	QueryTemplate string `yaml:"query-template"`
 	JsonTemplate  string `yaml:"json-template"`
 	Name          string
 }
 
-//func (m model)adapt() model.Model{}
+func (m model) adapt(db *sql.DB) model2.Model {
+	return model2.Create(m.Name, db, m.QueryTemplate, m.JsonTemplate)
+}
 
 type Controller struct {
 	Fallback interface{} `yaml:"fallback"`
@@ -78,14 +80,14 @@ func (s server) adapt(controllers []controller.Controller) Server {
 /* Private configuration is meant to be adapted to the public one by converting yaml to functions */
 type configuration struct {
 	Database    database     `yaml:"database"`
-	Models      []Model      `yaml:"model(s)"`
+	Models      []model      `yaml:"model(s)"`
 	Controllers []Controller `yaml:"controller(s)"`
 	Server      server       `yaml:"server"`
 }
 
 type Configuration struct {
 	Database        *Database
-	Models          []model.Model
+	Models          []model2.Model
 	Controllers     []controller.Controller
 	Server          Server
 	DatabaseClosure func()
@@ -94,18 +96,20 @@ type Configuration struct {
 // Adapt adapts the configuration, converting FallbackJSON to actual controllers.
 func (c configuration) adapt() *Configuration {
 	var controllers []controller.Controller
-	for i := 0; i < len(c.Controllers); i++ {
-		JSON, err := json.Marshal(c.Controllers[i].Fallback)
-		if err != nil {
-			log.Fatal().Err(err).Msg("JSON error in Controller : " + c.Controllers[i].Name)
-		}
-		newController := controller.Create(c.Controllers[i].Name, nil, JSON, c.Controllers[i].CORS)
-		controllers = append(controllers, newController)
-	}
 	// This need a SQL handle for some reason
 
 	if c.Database.Path == "" || c.Database.InitQuery == "" {
 		log.Warn().Msg("Missing Database in main.yml : Models are disabled")
+		// Set all the models to nil, effectively disabling models
+		for i := 0; i < len(c.Controllers); i++ {
+			JSON, err := json.Marshal(c.Controllers[i].Fallback)
+			if err != nil {
+				log.Fatal().Err(err).Msg("JSON error in Controller : " + c.Controllers[i].Name)
+			}
+			newController := controller.Create(c.Controllers[i].Name, nil, JSON, c.Controllers[i].CORS)
+			controllers = append(controllers, newController)
+		}
+
 		return &Configuration{
 			Database:        nil,
 			Controllers:     controllers,
@@ -117,10 +121,34 @@ func (c configuration) adapt() *Configuration {
 	} else {
 		// call closeDB to defer the db close
 		db, closeDB := database2.Create(c.Database.InitQuery, c.Database.Path)
+		var newmodels []model2.Model
+
+		// Adapt all the models to actual data models
+		for i := 0; i < len(c.Models); i++ {
+			newmodels = append(newmodels, c.Models[i].adapt(db))
+		}
+
+		for i := 0; i < len(c.Controllers); i++ {
+			JSON, err := json.Marshal(c.Controllers[i].Fallback)
+			if err != nil {
+				log.Fatal().Err(err).Msg("JSON error in Controller : " + c.Controllers[i].Name)
+			}
+			// The model the controller should use
+			var controllermodel *model2.Model
+			for j := 0; j < len(newmodels); j++ {
+				if c.Controllers[i].Model == newmodels[j].Name {
+					controllermodel = &newmodels[j]
+				}
+			}
+
+			newController := controller.Create(c.Controllers[i].Name, controllermodel, JSON, c.Controllers[i].CORS)
+			controllers = append(controllers, newController)
+		}
+
 		return &Configuration{
 			Database:        c.Database.adapt(db),
 			Controllers:     controllers,
-			Models:          nil,
+			Models:          newmodels,
 			Server:          c.Server.adapt(controllers),
 			DatabaseClosure: closeDB,
 		}

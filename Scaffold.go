@@ -16,5 +16,6 @@ func main() {
 
 	//Attach Controllers to HTTP + Start the HTTP server
 	controller.SetupControllers(conf.Server.Services)
+
 	misc.StartHttp(conf.Server.Port)
 }
