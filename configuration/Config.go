@@ -3,6 +3,9 @@ package configuration
 import (
 	"database/sql"
 	"encoding/json"
+	"errors"
+	"fmt"
+	"github.com/metalim/jsonmap"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"gopkg.in/yaml.v3"
@@ -28,14 +31,33 @@ func (d database) adapt(db *sql.DB) *Database {
 	return &Database{Db: db, InitQuery: d.InitQuery, Path: d.Path}
 }
 
+/*
+This part of code is VERY sketchy. Why? Because maps are unordered and
+Golang doesn't have ordered maps so this is a workaround.
+JsonTemplate works by marshalling it int the KeyValue struct,then this gets turned into a jsonmap.map
+*/
+type KeyValue struct {
+	Name string `yaml:"Name"`
+	Type string `yaml:"Type"`
+}
 type model struct {
-	QueryTemplate string `yaml:"query-template"`
-	JsonTemplate  string `yaml:"json-template"`
+	QueryTemplate string     `yaml:"query-template"`
+	JsonTemplate  []KeyValue `yaml:"json-template"`
 	Name          string
 }
 
 func (m model) adapt(db *sql.DB) model2.Model {
-	return model2.Create(m.Name, db, m.QueryTemplate, m.JsonTemplate)
+	f := jsonmap.New()
+	for i := 0; i < len(m.JsonTemplate); i++ {
+		if m.JsonTemplate[i].Type == "" || m.JsonTemplate[i].Name == "" {
+			log.Fatal().Err(errors.New("Missing Value in Json Template")).Msg("Something went wrong with JSON template's ")
+		} else {
+			f.Set(m.JsonTemplate[i].Name, m.JsonTemplate[i].Type)
+		}
+	}
+	//whoever wrote this was drunk
+	fmt.Println(*f)
+	return model2.Create(m.Name, db, m.QueryTemplate, f)
 }
 
 type Controller struct {

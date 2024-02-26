@@ -1,0 +1,8 @@
+POST /Post_John HTTP/1.1
+Host: localhost:8080
+Content-Type: application/json
+
+{
+  "name": "John",
+  "age": 30
+}

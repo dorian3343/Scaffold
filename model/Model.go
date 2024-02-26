@@ -14,10 +14,10 @@ type Model struct {
 	Name     string
 	db       *sql.DB
 	template string
-	json     interface{}
+	json     *jsonmap.Map
 }
 
-func Create(name string, db *sql.DB, template string, JSON interface{}) Model {
+func Create(name string, db *sql.DB, template string, JSON *jsonmap.Map) Model {
 	return Model{Name: name, db: db, template: template, json: JSON}
 }
 
@@ -60,7 +60,6 @@ func (m Model) Querybuilder(x []byte) (string, error) {
 	if err != nil {
 		return "", err
 	}
-
 	// Get the number of placeholders in the template string
 	numPlaceholders := strings.Count(m.template, "%s")
 
@@ -79,6 +78,7 @@ func (m Model) Querybuilder(x []byte) (string, error) {
 }
 
 func (m Model) Query(query string) (*sql.Rows, error) {
+	fmt.Println(query)
 	rows, err := m.db.Query(query)
 	if err != nil {
 		return nil, err
