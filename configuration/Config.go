@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/metalim/jsonmap"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -55,8 +54,6 @@ func (m model) adapt(db *sql.DB) model2.Model {
 			f.Set(m.JsonTemplate[i].Name, m.JsonTemplate[i].Type)
 		}
 	}
-	//whoever wrote this was drunk
-	fmt.Println(*f)
 	return model2.Create(m.Name, db, m.QueryTemplate, f)
 }
 
