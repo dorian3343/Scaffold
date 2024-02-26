@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-func Setup(query string, databaseName string) (*sql.DB, func()) {
+func Create(query string, databaseName string) (*sql.DB, func()) {
 	/* Check if Database file exists */
 	_, err := os.Stat(databaseName)
 	if os.IsNotExist(err) {

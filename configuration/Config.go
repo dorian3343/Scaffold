@@ -1,6 +1,7 @@
 package configuration
 
 import (
+	"database/sql"
 	"encoding/json"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -8,22 +9,32 @@ import (
 	"io/ioutil"
 	"os"
 	"service/controller"
+	database2 "service/database"
 	"service/model"
 )
 
-type Database struct {
+type database struct {
 	InitQuery string `yaml:"init-query"`
 	Path      string `yaml:"path"`
 }
 
-type QueryTemplate struct {
-	JsonTemplate map[string]interface{} `yaml:"json-template"`
-	Name         string                 `yaml:"name"`
+type Database struct {
+	Db        *sql.DB
+	InitQuery string
+	Path      string
+}
+
+func (d database) adapt(db *sql.DB) *Database {
+	return &Database{Db: db, InitQuery: d.InitQuery, Path: d.Path}
 }
 
 type Model struct {
-	QueryTemplate QueryTemplate `yaml:"query-template"`
+	QueryTemplate string `yaml:"query-template"`
+	JsonTemplate  string `yaml:"json-template"`
+	Name          string
 }
+
+//func (m model)adapt() model.Model{}
 
 type Controller struct {
 	Fallback interface{} `yaml:"fallback"`
@@ -66,17 +77,18 @@ func (s server) adapt(controllers []controller.Controller) Server {
 
 /* Private configuration is meant to be adapted to the public one by converting yaml to functions */
 type configuration struct {
-	Database    Database     `yaml:"database"`
+	Database    database     `yaml:"database"`
 	Models      []Model      `yaml:"model(s)"`
 	Controllers []Controller `yaml:"controller(s)"`
 	Server      server       `yaml:"server"`
 }
 
 type Configuration struct {
-	Database    Database
-	Models      []model.Model
-	Controllers []controller.Controller
-	Server      Server
+	Database        *Database
+	Models          []model.Model
+	Controllers     []controller.Controller
+	Server          Server
+	DatabaseClosure func()
 }
 
 // Adapt adapts the configuration, converting FallbackJSON to actual controllers.
@@ -90,11 +102,29 @@ func (c configuration) adapt() *Configuration {
 		newController := controller.Create(c.Controllers[i].Name, nil, JSON, c.Controllers[i].CORS)
 		controllers = append(controllers, newController)
 	}
-	return &Configuration{
-		Database:    c.Database,
-		Controllers: controllers,
-		Models:      nil,
-		Server:      c.Server.adapt(controllers),
+	// This need a SQL handle for some reason
+
+	if c.Database.Path == "" || c.Database.InitQuery == "" {
+		log.Warn().Msg("Missing Database in main.yml : Models are disabled")
+		return &Configuration{
+			Database:        nil,
+			Controllers:     controllers,
+			Models:          nil,
+			Server:          c.Server.adapt(controllers),
+			DatabaseClosure: nil,
+		}
+
+	} else {
+		// call closeDB to defer the db close
+		db, closeDB := database2.Create(c.Database.InitQuery, c.Database.Path)
+		return &Configuration{
+			Database:        c.Database.adapt(db),
+			Controllers:     controllers,
+			Models:          nil,
+			Server:          c.Server.adapt(controllers),
+			DatabaseClosure: closeDB,
+		}
+
 	}
 }
 

@@ -24,7 +24,7 @@ func TestSetup(t *testing.T) {
 
 	// Run the test
 	t.Run("Setup", func(t *testing.T) {
-		db, Dbclose := Setup(testQuery, testDBName)
+		db, Dbclose := Create(testQuery, testDBName)
 		defer Dbclose()
 
 		// Check if Setup returns a valid database connection

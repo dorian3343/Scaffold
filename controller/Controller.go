@@ -118,7 +118,7 @@ func SetupControllers(services map[string]Controller) {
 	var wrn []string
 
 	for route, handler := range services {
-
+		fmt.Println(handler.Model)
 		log.Trace().Msgf("New Route : | %s : %s", route, handler.Name)
 		if route == "" {
 			log.Fatal().Err(errors.New("Missing route")).Msg("Something went wrong with setting up Controllers")
