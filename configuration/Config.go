@@ -212,8 +212,9 @@ func Setup(path string) (*Configuration, func()) {
 				log.Fatal().Err(err).Msg("Error while closing log file")
 			}
 		}
-
 		multi = zerolog.MultiLevelWriter(zerolog.ConsoleWriter{Out: os.Stdout}, file)
+	} else {
+		multi = zerolog.MultiLevelWriter(zerolog.ConsoleWriter{Out: os.Stdout})
 	}
 	log.Logger = zerolog.New(multi).With().Timestamp().Logger()
 	return conf, closeFile
