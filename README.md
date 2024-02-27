@@ -7,7 +7,7 @@ A repetitive backend generator. Generate endpoints, quickly and with as few LOC'
 ## Usage
 
 ---
-Scaffold comes with a couple of configurable and reusable pieces.
+Scaffold comes with a couple of configurable and reusable pieces. To configure them edit the main.yml file.
 ### Controller
 ```YAML
 controller(s): # This is the entry point of the controller definition
