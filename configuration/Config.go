@@ -214,10 +214,7 @@ func Setup(path string) (*Configuration, func()) {
 		}
 
 		multi = zerolog.MultiLevelWriter(zerolog.ConsoleWriter{Out: os.Stdout}, file)
-	} else {
-		multi = zerolog.MultiLevelWriter(zerolog.ConsoleWriter{Out: os.Stdout})
 	}
-
 	log.Logger = zerolog.New(multi).With().Timestamp().Logger()
 	return conf, closeFile
 }
