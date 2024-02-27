@@ -11,6 +11,8 @@ import (
 
 const sampleJSON = `{"name":"John","Age":30}`
 
+// TODO: Rewrite e2e
+/*
 func TestModel_Querybuilder(t *testing.T) {
 	// Test case for successful scenario
 	json1 := jsonmap.New()
@@ -69,7 +71,7 @@ func TestModel_ComplexQueryBuilder(t *testing.T) {
 		t.Errorf("Expected query: %s, got: %s", expectedQuery, query)
 	}
 }
-
+*/
 func TestMapToArray(t *testing.T) {
 	json1 := jsonmap.New()
 

@@ -41,10 +41,17 @@ database: # This is the entry point of the database definition
 ```
 ### Model
 ```Yaml
-Currently model's can't be generated. WIP
+  - query-template: INSERT INTO user (name, age) VALUES ('%s', %s) # The query the model should preform
+    name: add_user_model # The models name, used to link it to controllers
+    json-template: # A template request, it will throw bad request if request doesnt match
+      - Name: name #Define a key values name 
+        Type: string # Define a key values Type (Currently only string / int)
+      - Name: age
+        Type: integer
+#* Nested objects aren't supported
 ```
 
-## Defining multiple values (Controllers etc )
+## Defining multiple values (Controllers,Models etc )
 Using YAML's Array syntax you can define multiple values, 
 if multiple values are allowed the name will end with (s) 'controller(s) , service(s) etc'
 ```yaml
@@ -112,6 +119,44 @@ server:
       route: /Add_John
 
 ```
+### Model w/ Template / Users Example
+```yaml
+database:
+  init-query: |
+    CREATE TABLE IF NOT EXISTS user (
+      id INTEGER PRIMARY KEY,
+      name TEXT NOT NULL,
+      age INTEGER
+    );
+  path: ./main.db
+model(s):
+  - query-template: INSERT INTO user (name, age) VALUES ('%s', %s)
+    name: add_user_model
+    json-template:
+      - Name: name
+        Type: string
+      - Name: age
+        Type: integer
+  - query-template: SELECT * FROM user;
+    name: main_model
+controller(s):
+  - fallback: Something went wrong
+    name: main_controller
+    model: main_model
+  - fallback: Something went wrong
+    name: second_controller
+    model: add_user_model
+server:
+  port: 8080
+  service(s):
+    - controller: main_controller
+      route: /get_user
+    - controller: second_controller
+      route: /post_user
+
+```
+
+
 
 ### Empty
 ```YAML

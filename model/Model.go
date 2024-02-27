@@ -115,7 +115,6 @@ func (m Model) Querybuilder(x []byte) (string, error) {
 		}
 		// Get the number of placeholders in the template string
 		numPlaceholders := strings.Count(m.template, "%s")
-
 		// Truncate arrayData if it exceeds the number of placeholders
 		if numPlaceholders < len(arrayData) {
 			arrayData = arrayData[:numPlaceholders]
@@ -137,6 +136,7 @@ func (m Model) Querybuilder(x []byte) (string, error) {
 }
 
 func (m Model) Query(query string) (*sql.Rows, error) {
+	fmt.Println(query)
 	rows, err := m.db.Query(query)
 	if err != nil {
 		return nil, err

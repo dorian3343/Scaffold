@@ -191,8 +191,8 @@ func create(filename string) (*Configuration, error) {
 }
 
 // Setup the config + logging
-func Setup() (*Configuration, func()) {
-	conf, err := create("./main.yml")
+func Setup(path string) (*Configuration, func()) {
+	conf, err := create(path)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Something went wrong with generating config from main.yml")
 	}

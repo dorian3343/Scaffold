@@ -1,0 +1,32 @@
+database:
+  init-query: |
+    CREATE TABLE IF NOT EXISTS user (
+      id INTEGER PRIMARY KEY,
+      name TEXT NOT NULL,
+      age INTEGER
+    );
+  path: ./main.db
+model(s):
+  - query-template: INSERT INTO user (name, age) VALUES ('%s', %s)
+    name: add_user_model
+    json-template:
+      - Name: name
+        Type: string
+      - Name: age
+        Type: integer
+  - query-template: SELECT * FROM user;
+    name: main_model
+controller(s):
+  - fallback: Something went wrong
+    name: main_controller
+    model: main_model
+  - fallback: Something went wrong
+    name: second_controller
+    model: add_user_model
+server:
+  port: 8080
+  service(s):
+    - controller: main_controller
+      route: /get_user
+    - controller: second_controller
+      route: /post_user

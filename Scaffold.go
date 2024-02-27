@@ -10,7 +10,7 @@ import (
 func main() {
 	misc.WelcomeMessage()
 	//Read YAML, Construct conf object, setup sqlite + Setup Logging
-	conf, closeFile := configuration.Setup()
+	conf, closeFile := configuration.Setup("./main.yml")
 	defer closeFile()
 	defer conf.DatabaseClosure()
 

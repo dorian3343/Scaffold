@@ -37,6 +37,7 @@ func (c Controller) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 	}
 	if c.Model == nil {
+		w.Header().Set("Content-Type", "application/json")
 		_, err := w.Write(c.Fallback)
 		if err != nil {
 			log.Err(err).Msg("Something went wrong with Fallback")
@@ -53,9 +54,15 @@ func (c Controller) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		query, err := c.Model.Querybuilder(body)
 		if err != nil {
-			log.Err(err).Msg("Something went wrong with building query")
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-			return
+			if err.Error() == "JSON request does not match spec" {
+				log.Err(err).Msg("Something went wrong with building query")
+				http.Error(w, "JSON request does not match spec", http.StatusBadRequest)
+				return
+			} else {
+				log.Err(err).Msg("Something went wrong with building query")
+				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+				return
+			}
 		}
 
 		result, err := c.Model.Query(query)

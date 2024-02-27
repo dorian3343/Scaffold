@@ -1,0 +1,8 @@
+###
+GET http://localhost:8080/Greeting
+###
+GET http://localhost:8080/error
+###
+GET http://localhost:8080/status
+###
+GET http://localhost:8080/int

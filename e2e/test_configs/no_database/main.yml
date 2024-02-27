@@ -1,0 +1,23 @@
+controller(s):
+  - fallback: {"message": "Hello world"}
+    name: main_controller
+    CORS: true
+  - fallback: {"error": "Resource not found"}
+    name: error_controller
+    CORS: false
+  - fallback: {"status": "OK"}
+    name: status_controller
+    CORS: true
+  - fallback: 69
+    name: int_controller
+server:
+  port: 8080
+  service(s):
+    - controller: main_controller
+      route: /Greeting
+    - controller: error_controller
+      route: /error
+    - controller: status_controller
+      route: /status
+    - controller: int_controller
+      route: /int
