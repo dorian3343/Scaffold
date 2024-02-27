@@ -8,10 +8,8 @@ import (
 )
 
 func WelcomeMessage() {
-	bold := "\033[1m"
-	reset := "\033[0m"
 	text := "Thank you for using Scaffold! Happy dev'ing <3 !"
-	fmt.Println(bold + text + reset + "\n")
+	fmt.Println(text)
 }
 
 func StartHttp(port int) {
