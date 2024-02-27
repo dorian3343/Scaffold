@@ -33,14 +33,13 @@ func MapToArray(s interface{}) ([]string, error) {
 		if v == nil {
 			return nil, errors.New("Nil value passed")
 		}
-		// Handle map type
 		var values = make([]string, 0)
+
 		val := v.Values()
 		for i := 0; i < len(val); i++ {
 			str := fmt.Sprintf("%v", val[i])
 			values = append(values, str)
 		}
-
 		return values, nil
 	default:
 		return nil, errors.New("unsupported type")
@@ -52,6 +51,7 @@ func capitalize(s string) string {
 	}
 	return string(s[0]-'a'+'A') + s[1:]
 }
+
 func generateStructFromJsonMap(f jsonmap.Map) reflect.Type {
 	fields := make([]reflect.StructField, 0, len(f.Keys()))
 	for _, Name := range f.Keys() {
@@ -82,30 +82,30 @@ func generateStructFromJsonMap(f jsonmap.Map) reflect.Type {
 
 // fills out the query template with data from the json
 func (m Model) Querybuilder(x []byte) (string, error) {
+	json1 := jsonmap.New()
+	var Keys = make([]string, 0)
+	var TKeys = make([]string, 0)
+
 	if len(x) == 0 {
 		log.Warn().Msg("Empty JSON template so Query is sent as is.")
 		return m.template, nil
 	}
-	json1 := jsonmap.New()
 	err := json.Unmarshal(x, json1)
 	if err != nil {
 		return "", errors.New("failed to decode JSON data: " + err.Error())
 	}
+
 	err = json.Unmarshal(x, json1)
 	if err != nil {
 		return "", errors.New("failed to decode JSON data: " + err.Error())
 	}
-	var Keys = make([]string, 0)
 	val := json1.Keys()
 	for i := 0; i < len(val); i++ {
 		str := fmt.Sprintf("%v", val[i])
 		Keys = append(Keys, capitalize(str))
 	}
-	var TKeys = make([]string, 0)
 	T := generateStructFromJsonMap(*m.json)
-	fmt.Println(T)
 	for i := 0; i < T.NumField(); i++ {
-		fmt.Println(T.Field(i).Name)
 		TKeys = append(TKeys, T.Field(i).Name) //
 	}
 	if slices.Equal(TKeys, Keys) {
@@ -130,7 +130,6 @@ func (m Model) Querybuilder(x []byte) (string, error) {
 	} else {
 		log.Warn().Msg("JSON request does not match spec")
 		return "", errors.New("JSON request does not match spec")
-
 	}
 
 }
