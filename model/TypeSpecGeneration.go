@@ -32,7 +32,7 @@ func matchesSpec(Y jsonmap.Map, T reflect.Type) bool {
 			// Compare the types of the field in the struct and in the JSON map
 			if fieldT != reflect.TypeOf(fieldValue) {
 				if fieldT == reflect.TypeOf(int(0)) && reflect.TypeOf(fieldValue) == reflect.TypeOf(float64(0)) {
-					log.Warn().Msg("Adapted type to int")
+					log.Warn().Msg("Adapted type to int from float64")
 				} else {
 					log.Error().Msgf("Wrong Type in field '%s' in JSON request. Got type '%s' expected type '%s'", fieldName, fieldT, reflect.TypeOf(fieldValue))
 					return false
