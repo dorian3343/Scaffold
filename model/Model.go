@@ -37,8 +37,7 @@ func (m Model) Querybuilder(x []byte) (string, error) {
 
 	T := generateStructFromJsonMap(*m.json)
 
-	//Check if request matches json specification
-	if matchesKeys(json1.Keys(), T) {
+	if matchesSpec(*json1, T) {
 		arrayData, err := MapToArray(json1)
 		if err != nil {
 			return "", err

@@ -15,7 +15,7 @@ if NOT "!response!" == "null" (
     exit /b 1
 )
 
-set "json_data={\"name\":\"John Doe\",\"age\":30}"
+set "json_data={\"Name\":\"John Doe\",\"Age\":30}"
 curl -s -X POST ^
      -H "Content-Type: application/json" ^
      -d "%json_data%" ^

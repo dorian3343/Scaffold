@@ -7,7 +7,6 @@ import (
 	"github.com/rs/zerolog/log"
 	"reflect"
 	"service/misc"
-	"slices"
 )
 
 /*
@@ -15,22 +14,34 @@ import (
 	matching the json request against the generated specification
 */
 
-//TODO: Add a matchesType and matchesSpec
-
-// Function made to match if json request matches a struct's specification
-func matchesKeys(Y []jsonmap.Key, T reflect.Type) bool {
-	var Keys = make([]string, 0)
-	var TKeys = make([]string, 0)
-
+// Matches Json Request to a struct (JSON specification)
+func matchesSpec(Y jsonmap.Map, T reflect.Type) bool {
+	// Check if the number of keys in the JSON map matches the number of fields in the struct
+	if len(Y.Keys()) != T.NumField() {
+		return false
+	}
 	for i := 0; i < T.NumField(); i++ {
-		TKeys = append(TKeys, T.Field(i).Name)
+		fieldName := T.Field(i).Name
+		fieldT := T.Field(i).Type
+
+		//check if field exists
+		if fieldValue, ok := Y.Get(fieldName); !ok {
+			log.Error().Msgf("Missing field '%s' in JSON request", fieldName)
+			return false
+		} else {
+			// Compare the types of the field in the struct and in the JSON map
+			if fieldT != reflect.TypeOf(fieldValue) {
+				if fieldT == reflect.TypeOf(int(0)) && reflect.TypeOf(fieldValue) == reflect.TypeOf(float64(0)) {
+					log.Warn().Msg("Adapted type to int")
+				} else {
+					log.Error().Msgf("Wrong Type in field '%s' in JSON request. Got type '%s' expected type '%s'", fieldName, fieldT, reflect.TypeOf(fieldValue))
+					return false
+				}
+			}
+		}
 	}
 
-	for i := 0; i < len(Y); i++ {
-		str := Y[i]
-		Keys = append(Keys, misc.Capitalize(str))
-	}
-	return slices.Equal(Keys, TKeys)
+	return true
 }
 
 // Generates a type from a jsonmap.map, the intended usage is to  generate types from the configuration,

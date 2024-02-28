@@ -10,9 +10,9 @@ model(s):
   - query-template: INSERT INTO user (name, age) VALUES ('%s', %s)
     name: add_user_model
     json-template:
-      - Name: name
+      - Name: Name
         Type: string
-      - Name: age
+      - Name: Age
         Type: integer
   - query-template: SELECT * FROM user;
     name: main_model
