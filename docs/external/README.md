@@ -6,5 +6,5 @@ application.
 
 ## Content's:
 1. [Components](component's.md)
-
+2. [Good practices](good-practices.md)
 
