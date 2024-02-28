@@ -3,7 +3,7 @@ setlocal enabledelayedexpansion
 
 start /b go run main.go > NUL 2>&1
 rem Sleep without input redirection error
-ping -n 6 127.0.0.1 > nul
+ping -n 1 127.0.0.1 > nul
 
 rem GET http://localhost:8080/get_user test 1
 for /f "delims=" %%a in ('curl -s http://localhost:8080/get_user') do set "response=%%a"
