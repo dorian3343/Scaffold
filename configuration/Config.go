@@ -1,63 +1,15 @@
 package configuration
 
 import (
-	"database/sql"
 	"encoding/json"
-	"errors"
-	"github.com/metalim/jsonmap"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"gopkg.in/yaml.v3"
-	"io/ioutil"
 	"os"
 	"service/controller"
 	database2 "service/database"
 	model2 "service/model"
 )
-
-type database struct {
-	InitQuery string `yaml:"init-query"`
-	Path      string `yaml:"path"`
-}
-
-type Database struct {
-	Db        *sql.DB
-	InitQuery string
-	Path      string
-}
-
-func (d database) adapt(db *sql.DB) *Database {
-	return &Database{Db: db, InitQuery: d.InitQuery, Path: d.Path}
-}
-
-type KeyValue struct {
-	Name string `yaml:"Name"`
-	Type string `yaml:"Type"`
-}
-type model struct {
-	QueryTemplate string     `yaml:"query-template"`
-	JsonTemplate  []KeyValue `yaml:"json-template"`
-	Name          string
-}
-
-func (m model) adapt(db *sql.DB) model2.Model {
-	f := jsonmap.New()
-	for i := 0; i < len(m.JsonTemplate); i++ {
-		if m.JsonTemplate[i].Type == "" || m.JsonTemplate[i].Name == "" {
-			log.Fatal().Err(errors.New("Missing Value in Json Template")).Msg("Something went wrong with JSON template's ")
-		} else {
-			f.Set(m.JsonTemplate[i].Name, m.JsonTemplate[i].Type)
-		}
-	}
-	return model2.Create(m.Name, db, m.QueryTemplate, f)
-}
-
-type Controller struct {
-	Fallback interface{} `yaml:"fallback"`
-	Name     string      `yaml:"name"`
-	Model    string      `yaml:"model"`
-	CORS     bool        `yaml:"CORS"`
-}
 
 /* Private server config to only be used for constructing the public one*/
 type server struct {
@@ -109,8 +61,11 @@ type Configuration struct {
 
 // Adapt adapts the configuration, converting FallbackJSON to actual controllers.
 func (c configuration) adapt() *Configuration {
+
 	var controllers []controller.Controller
-	// This need a SQL handle for some reason
+	var databasePointer *Database
+	var models []model2.Model
+	var databaseClosure func()
 
 	if c.Database.Path == "" || c.Database.InitQuery == "" {
 		log.Warn().Msg("Missing Database in main.yml : Models are disabled")
@@ -123,24 +78,18 @@ func (c configuration) adapt() *Configuration {
 			newController := controller.Create(c.Controllers[i].Name, nil, JSON, c.Controllers[i].CORS)
 			controllers = append(controllers, newController)
 		}
-
-		return &Configuration{
-			Database:        nil,
-			Controllers:     controllers,
-			Models:          nil,
-			Server:          c.Server.adapt(controllers),
-			DatabaseClosure: nil,
-		}
+		databasePointer = nil
+		models = nil
+		databaseClosure = nil
 
 	} else {
 		// call closeDB to defer the db close
 		db, closeDB := database2.Create(c.Database.InitQuery, c.Database.Path)
-		var newmodels []model2.Model
 		var controllermodel *model2.Model
 
 		// Adapt all the models to actual data models
 		for i := 0; i < len(c.Models); i++ {
-			newmodels = append(newmodels, c.Models[i].adapt(db))
+			models = append(models, c.Models[i].adapt(db))
 		}
 
 		for i := 0; i < len(c.Controllers); i++ {
@@ -149,30 +98,30 @@ func (c configuration) adapt() *Configuration {
 				log.Fatal().Err(err).Msg("JSON error in Controller : " + c.Controllers[i].Name)
 			}
 			// The model the controller should use
-			for j := 0; j < len(newmodels); j++ {
-				if c.Controllers[i].Model == newmodels[j].Name {
-					controllermodel = &newmodels[j]
+			for j := 0; j < len(models); j++ {
+				if c.Controllers[i].Model == models[j].Name {
+					controllermodel = &models[j]
 				}
 			}
-
 			newController := controller.Create(c.Controllers[i].Name, controllermodel, JSON, c.Controllers[i].CORS)
 			controllers = append(controllers, newController)
 		}
-
-		return &Configuration{
-			Database:        c.Database.adapt(db),
-			Controllers:     controllers,
-			Models:          newmodels,
-			Server:          c.Server.adapt(controllers),
-			DatabaseClosure: closeDB,
-		}
-
+		databasePointer = c.Database.adapt(db)
+		databaseClosure = closeDB
 	}
+	return &Configuration{
+		Database:        databasePointer,
+		Controllers:     controllers,
+		Models:          models,
+		Server:          c.Server.adapt(controllers),
+		DatabaseClosure: databaseClosure,
+	}
+
 }
 
 func create(filename string) (*Configuration, error) {
 	// Read YAML file
-	data, err := ioutil.ReadFile(filename)
+	data, err := os.ReadFile(filename)
 	if err != nil {
 		return nil, err
 	}
