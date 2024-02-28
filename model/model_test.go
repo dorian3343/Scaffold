@@ -9,69 +9,8 @@ import (
 	"testing"
 )
 
-const sampleJSON = `{"name":"John","Age":30}`
+const sampleJSON = `{"Name":"John","Age":30}`
 
-// TODO: Rewrite e2e
-/*
-func TestModel_Querybuilder(t *testing.T) {
-	// Test case for successful scenario
-	json1 := jsonmap.New()
-	err := json.Unmarshal([]byte(sampleJSON), json1)
-	if err != nil {
-		fmt.Println("Error decoding JSON:", err)
-		//panic(err)
-	}
-
-	// marshal, keeping order
-	output, err := json.Marshal(json1)
-	if err != nil {
-		fmt.Println("Error marshalling JSON:", err)
-		//panic(err)
-	}
-	model := Model{template: "SELECT * FROM users WHERE name = %s AND age = %s", json: json1}
-	expectedQuery := "SELECT * FROM users WHERE name = John AND age = 30"
-	query, err := model.Querybuilder(output)
-	if err != nil {
-		fmt.Println(err)
-		t.Errorf("Unexpected error: %v", err)
-	}
-	if query != expectedQuery {
-		t.Errorf("Expected query: %s, got: %s", expectedQuery, query)
-	}
-	fmt.Println("Test completed successfully.")
-}
-func TestModel_ComplexQueryBuilder(t *testing.T) {
-	// Test case for a more complex JSON input
-	complexJSON := `{
-        "name": "Alice",
-        "age": 25,
-		"city": "New York",
-		"zip": "10001",
-        "interests": ["reading", "music"]
-    }`
-
-	json1 := jsonmap.New()
-	err := json.Unmarshal([]byte(complexJSON), json1)
-	if err != nil {
-		t.Errorf("Error decoding JSON: %v", err)
-	}
-
-	output, err := json.Marshal(json1)
-	if err != nil {
-		t.Errorf("Error marshalling JSON: %v", err)
-	}
-
-	model := Model{template: "SELECT * FROM users WHERE name = %s AND age = %s AND city = %s AND zip = %s AND interests = %s", json: json1}
-	expectedQuery := "SELECT * FROM users WHERE name = Alice AND age = 25 AND city = New York AND zip = 10001 AND interests = [reading music]"
-	query, err := model.Querybuilder(output)
-	if err != nil {
-		t.Errorf("Unexpected error: %v", err)
-	}
-	if query != expectedQuery {
-		t.Errorf("Expected query: %s, got: %s", expectedQuery, query)
-	}
-}
-*/
 func TestMapToArray(t *testing.T) {
 	json1 := jsonmap.New()
 
@@ -99,5 +38,37 @@ func TestMapToArray(t *testing.T) {
 	expectedError := errors.New("unsupported type")
 	if err.Error() != expectedError.Error() {
 		t.Errorf("Expected error message: %v, Got: %v", expectedError, err)
+	}
+}
+
+func TestMatchesSpec(t *testing.T) {
+	testjsonmap := jsonmap.New()
+	testjsonmap.Set("Name", "string")
+	testjsonmap.Set("Age", "integer")
+
+	testjsonmap2 := jsonmap.New()
+	testjsonmap2.Set("Age", "string")
+	testjsonmap2.Set("Name", "integer")
+
+	testjsonmap3 := jsonmap.New()
+	testjsonmap2.Set("ageless", "string")
+	testjsonmap2.Set("nameful", "integer")
+
+	json1 := jsonmap.New()
+	err := json.Unmarshal([]byte(sampleJSON), json1)
+	if err != nil {
+		fmt.Println("Error decoding JSON:", err)
+	}
+	T := generateStructFromJsonMap(*testjsonmap)
+	if !matchesSpec(*json1, T) {
+		t.Error("Request does not match spec")
+	}
+	T = generateStructFromJsonMap(*testjsonmap2)
+	if matchesSpec(*json1, T) {
+		t.Error("Request does not match spec")
+	}
+	T = generateStructFromJsonMap(*testjsonmap3)
+	if matchesSpec(*json1, T) {
+		t.Error("Request does not match spec")
 	}
 }

@@ -6,7 +6,7 @@ application.
 
 ## Content's:
 1. [Components](component's.md)
-
+2. [Good practices](good-practices.md)
 
 ## How to setup Scaffold
 1. Download the Latest Scaffold Release from the github repository.

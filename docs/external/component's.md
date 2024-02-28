@@ -75,7 +75,7 @@ model(s):
   
   # json-template -> This is the template for JSON request's. 
   # It takes in an array of 'object's' with two values:
-  # Name -> the name of the data field
+  # Name -> the name of the data field. The Name's MUST be capitalized or will fail
   # Type -> the data type of the field. (Currently only supports : string, integer)
   # If the request doesn't match the spec it throw's a status 400.
   # If left empty it doesn't fill out the template.
