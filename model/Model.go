@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/metalim/jsonmap"
 	"github.com/rs/zerolog/log"
+	"reflect"
 	"strings"
 )
 
@@ -15,10 +16,11 @@ type Model struct {
 	db       *sql.DB
 	template string
 	json     *jsonmap.Map
+	cachedT  *reflect.Type
 }
 
 func Create(name string, db *sql.DB, template string, JSON *jsonmap.Map) Model {
-	return Model{Name: name, db: db, template: template, json: JSON}
+	return Model{Name: name, db: db, template: template, json: JSON, cachedT: nil}
 }
 
 // Fills out the query template with data from the json
@@ -34,8 +36,14 @@ func (m Model) Querybuilder(x []byte) (string, error) {
 	if err != nil {
 		return "", errors.New("failed to decode JSON data: " + err.Error())
 	}
-
-	T := generateStructFromJsonMap(*m.json)
+	//Basic type caching
+	var T reflect.Type
+	if m.cachedT == nil {
+		T = generateStructFromJsonMap(*m.json)
+		m.cachedT = &T
+	} else {
+		T = *m.cachedT
+	}
 
 	if matchesSpec(*json1, T) {
 		arrayData, err := MapToArray(json1)
