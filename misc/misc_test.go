@@ -3,19 +3,19 @@ package misc
 import "testing"
 
 func TestCapitalize(t *testing.T) {
-	// Kinda a meme test but ok lol
-	x := "scaffold"
-	y := "Scaffold"
+	x := "name"
+	y := "Name"
 	z := "123"
-	if Capitalize(x) != y {
-		t.Errorf("Wrong Capitalization. Expected: %s | Got: %s", y, Capitalize(x))
+
+	if capitalizedX := Capitalize(x); capitalizedX != y {
+		t.Errorf("Wrong Capitalization. Expected: %s | Got: %s", y, capitalizedX)
 	}
 
-	if Capitalize(y) == y {
-		t.Errorf("Wrong Capitalization. Expected: %s | Got: %s", y, Capitalize(y))
-	}
-	if Capitalize(z) == z {
-		t.Errorf("Wrong Capitalization. Expected: %s | Got: %s", z, Capitalize(z))
+	if capitalizedY := Capitalize(y); capitalizedY != y {
+		t.Errorf("Wrong Capitalization. Expected: %s | Got: %s", y, capitalizedY)
 	}
 
+	if capitalizedZ := Capitalize(z); capitalizedZ != z {
+		t.Errorf("Wrong Capitalization. Expected: %s | Got: %s", z, capitalizedZ)
+	}
 }

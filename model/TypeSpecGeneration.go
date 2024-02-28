@@ -15,6 +15,8 @@ import (
 	matching the json request against the generated specification
 */
 
+//TODO: Add a matchesType and matchesSpec
+
 // Function made to match if json request matches a struct's specification
 func matchesKeys(Y []jsonmap.Key, T reflect.Type) bool {
 	var Keys = make([]string, 0)
@@ -25,7 +27,7 @@ func matchesKeys(Y []jsonmap.Key, T reflect.Type) bool {
 	}
 
 	for i := 0; i < len(Y); i++ {
-		str := fmt.Sprintf("%v", Y[i])
+		str := Y[i]
 		Keys = append(Keys, misc.Capitalize(str))
 	}
 	return slices.Equal(Keys, TKeys)

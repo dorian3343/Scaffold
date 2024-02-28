@@ -40,3 +40,28 @@ func TestMapToArray(t *testing.T) {
 		t.Errorf("Expected error message: %v, Got: %v", expectedError, err)
 	}
 }
+
+func TestMatchesKeys(t *testing.T) {
+	testjsonmap := jsonmap.New()
+	testjsonmap.Set("name", "string")
+	testjsonmap.Set("age", "integer")
+
+	testjsonmap2 := jsonmap.New()
+	testjsonmap2.Set("ageless", "string")
+	testjsonmap2.Set("nameful", "integer")
+
+	json1 := jsonmap.New()
+	err := json.Unmarshal([]byte(sampleJSON), json1)
+	if err != nil {
+		fmt.Println("Error decoding JSON:", err)
+	}
+	T := generateStructFromJsonMap(*testjsonmap)
+	if !matchesKeys(json1.Keys(), T) {
+		t.Error("Request does not match spec")
+	}
+	T = generateStructFromJsonMap(*testjsonmap2)
+	if matchesKeys(json1.Keys(), T) {
+		t.Error("Request does not match spec")
+	}
+
+}

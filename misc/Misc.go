@@ -25,8 +25,13 @@ func StartHttp(port int) {
 
 // Capitalize a string
 func Capitalize(s string) string {
-	if len(s) == 0 {
+	if len(s) == 0 || (s[0] >= 'A' && s[0] <= 'Z') || !isLetter(s[0]) {
 		return s
 	}
 	return string(s[0]-'a'+'A') + s[1:]
+}
+
+// Check if its a letter
+func isLetter(char byte) bool {
+	return (char >= 'a' && char <= 'z') || (char >= 'A' && char <= 'Z')
 }
