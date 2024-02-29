@@ -1,5 +1,5 @@
 # Scaffold
-<img src="https://img.shields.io/badge/Sqlite-003B57?style=for-the-badge&logo=sqlite&logoColor=white" />   <img src="https://img.shields.io/badge/Go-00ADD8?style=for-the-badge&logo=go&logoColor=white" />   ![YAML](https://img.shields.io/badge/yaml-%23ffffff.svg?style=for-the-badge&logo=yaml&logoColor=151515)
+<img src="https://img.shields.io/badge/Sqlite-003B57?style=for-the-badge&logo=sqlite&logoColor=white" />   <img src="https://img.shields.io/badge/Go-00ADD8?style=for-the-badge&logo=go&logoColor=white" /> ![Ruby](https://img.shields.io/badge/ruby-%23CC342D.svg?style=for-the-badge&logo=ruby&logoColor=white)   ![YAML](https://img.shields.io/badge/yaml-%23ffffff.svg?style=for-the-badge&logo=yaml&logoColor=151515)
 
 ---
 A repetitive backend generator. Generate endpoints, quickly and with as few LOC's as possible.
@@ -8,6 +8,13 @@ A repetitive backend generator. Generate endpoints, quickly and with as few LOC'
 1. [External Documentation](./docs/external/README.md)
 2. [Internal Documentation](./docs/internal/README.md)
 
+
+## How to setup Scaffold
+1. Download the Latest Scaffold Release from the github repository.
+2. Decompress and open the Scaffold folder.
+3. Edit the main.yml file to work on your project
+4. Start your project by running Scaffold.exe (prebuilt binary)
+5. Test your backend
 
 ## Features
 
@@ -61,3 +68,5 @@ server:
       route: /post_user
 
 ```
+
+

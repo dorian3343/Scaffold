@@ -4,7 +4,7 @@ controller(s):
     CORS: true
   - fallback: {"status":"OK"}
     name: status_controller
-    CORS: true
+    CORS: false
   - fallback: 69
     name: int_controller
 server:
