@@ -56,6 +56,28 @@ if response_data != data
   exit 1
 end
 
+# Test 4 -> add user wrong (malformed JSON)
+json_data = { "BadName" => "John Doe", "Age" => "30" }
+json_string = json_data.to_json
+
+# Define the URL
+url = URI.parse('http://localhost:8080/post_user')
+
+# Create the HTTP request
+http = Net::HTTP.new(url.host, url.port)
+request = Net::HTTP::Post.new(url.request_uri)
+request.body = json_string
+request['Content-Type'] = 'application/json'
+response = http.request(request)
+
+# Check the response
+if response.code != "400"
+  puts "Wrong status code received in Test 4: #{response.code} should be 400"
+  system("taskkill /f /im main.exe > NUL 2>&1")
+  File.delete("main.db")
+  exit 1
+end
+
 # Clean up
 system("taskkill /f /im main.exe > NUL 2>&1")
 File.delete("main.db")
