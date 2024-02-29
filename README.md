@@ -10,10 +10,10 @@ A repetitive backend generator. Generate endpoints, quickly and with as few LOC'
 
 
 ## How to setup Scaffold
-1. Download the Latest Scaffold Release from the github repository.
+1. Download the Latest Scaffold Release binary from [Releases](https://github.com/dorian3343/Scaffold/releases) (or build it yourself).
 2. Decompress and open the Scaffold folder.
-3. Edit the main.yml file to work on your project
-4. Start your project by running Scaffold.exe (prebuilt binary)
+3. Edit the main.yml file to work on your project.
+4. Start your project by running Scaffold.exe. 
 5. Test your backend
 
 ## Features
