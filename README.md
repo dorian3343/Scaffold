@@ -9,6 +9,13 @@ A repetitive backend generator. Generate endpoints, quickly and with as few LOC'
 2. [Internal Documentation](./docs/internal/README.md)
 
 
+## How to setup Scaffold
+1. Download the Latest Scaffold Release from the github repository.
+2. Decompress and open the Scaffold folder.
+3. Edit the main.yml file to work on your project
+4. Start your project by running Scaffold.exe (prebuilt binary)
+5. Test your backend
+
 ## Features
 
 * Easy / Fast to learn Syntax (YAML & SQL)
@@ -53,3 +60,5 @@ server:
       route: /post_user
 
 ```
+
+
