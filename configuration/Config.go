@@ -7,8 +7,8 @@ import (
 	"github.com/rs/zerolog/log"
 	"gopkg.in/yaml.v3"
 	"os"
-	"service/controller"
-	model2 "service/model"
+	"service/components/controller"
+	model2 "service/components/model"
 )
 
 /* Private server config to only be used for constructing the public one*/

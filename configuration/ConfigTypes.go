@@ -5,7 +5,7 @@ import (
 	"errors"
 	"github.com/metalim/jsonmap"
 	"github.com/rs/zerolog/log"
-	model2 "service/model"
+	model2 "service/components/model"
 )
 
 // ConfigTypes should include all the non-critical structs and their methods

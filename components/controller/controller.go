@@ -7,7 +7,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"io"
 	"net/http"
-	"service/model"
+	"service/components/model"
 	"slices"
 )
 
