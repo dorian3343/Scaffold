@@ -1,4 +1,4 @@
-package database
+package configuration
 
 import (
 	_ "github.com/glebarez/go-sqlite"
@@ -24,7 +24,7 @@ func TestSetup(t *testing.T) {
 
 	// Run the test
 	t.Run("Setup", func(t *testing.T) {
-		db, Dbclose := Create(testQuery, testDBName)
+		db, Dbclose := createDB(testQuery, testDBName)
 		defer Dbclose()
 
 		// Check if Setup returns a valid database connection

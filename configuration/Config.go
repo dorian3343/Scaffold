@@ -1,13 +1,13 @@
 package configuration
 
 import (
+	"database/sql"
 	"encoding/json"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"gopkg.in/yaml.v3"
 	"os"
 	"service/controller"
-	database2 "service/database"
 	model2 "service/model"
 )
 
@@ -84,7 +84,7 @@ func (c configuration) adapt() *Configuration {
 
 	} else {
 		// call closeDB to defer the db close
-		db, closeDB := database2.Create(c.Database.InitQuery, c.Database.Path)
+		db, closeDB := createDB(c.Database.InitQuery, c.Database.Path)
 		var controllermodel *model2.Model
 
 		// Adapt all the models to actual data models
@@ -163,4 +163,33 @@ func Setup(path string) (*Configuration, func()) {
 	}
 	log.Logger = zerolog.New(multi).With().Timestamp().Logger()
 	return conf, closeFile
+}
+
+// Setup a database
+func createDB(query string, databaseName string) (*sql.DB, func()) {
+	/* Check if Database file exists */
+	_, err := os.Stat(databaseName)
+	if os.IsNotExist(err) {
+		_, err2 := os.Create(databaseName)
+		if err2 != nil {
+			log.Fatal().Err(err).Msg("Something went wrong with creating Database")
+		}
+	}
+	// Create the Connection
+	db, err := sql.Open("sqlite", databaseName)
+	if err != nil {
+		log.Fatal().Err(err).Msg("Fatal Error opening sqlite")
+	}
+
+	_, err = db.Exec(query)
+	if err != nil {
+		log.Fatal().Err(err).Msg("Fatal Error during table setup")
+	}
+
+	closeDB := func() {
+		if err := db.Close(); err != nil {
+			log.Fatal().Err(err).Msg("Failed to close the database")
+		}
+	}
+	return db, closeDB
 }
