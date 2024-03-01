@@ -2,13 +2,15 @@ package configuration
 
 import (
 	"database/sql"
+	"encoding/json"
 	"errors"
 	"github.com/metalim/jsonmap"
 	"github.com/rs/zerolog/log"
+	"service/components/controller"
 	model2 "service/components/model"
 )
 
-// ConfigTypes should include all the non-critical structs and their methods
+// ConfigPrimitiveTypes should include all the non-critical structs and their methods
 
 // Database types
 type database struct {
@@ -33,6 +35,14 @@ type Controller struct {
 	Name     string      `yaml:"name"`
 	Model    string      `yaml:"model"`
 	cors     bool        `yaml:"cors"`
+}
+
+func (c Controller) adapt(model *model2.Model) controller.Controller {
+	JSON, err := json.Marshal(c.Fallback)
+	if err != nil {
+		log.Fatal().Err(err).Msg("JSON error in Controller : " + c.Name)
+	}
+	return controller.Create(c.Name, model, JSON, c.cors)
 }
 
 // Struct representing a single field of a json spec

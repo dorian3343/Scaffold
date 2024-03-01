@@ -2,7 +2,6 @@ package configuration
 
 import (
 	"database/sql"
-	"encoding/json"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"gopkg.in/yaml.v3"
@@ -71,11 +70,7 @@ func (c configuration) adapt() *Configuration {
 		log.Warn().Msg("Missing Database in main.yml : Models are disabled")
 		// Set all the models to nil, effectively disabling models
 		for i := 0; i < len(c.Controllers); i++ {
-			JSON, err := json.Marshal(c.Controllers[i].Fallback)
-			if err != nil {
-				log.Fatal().Err(err).Msg("JSON error in Controller : " + c.Controllers[i].Name)
-			}
-			newController := controller.Create(c.Controllers[i].Name, nil, JSON, c.Controllers[i].cors)
+			newController := c.Controllers[i].adapt(nil)
 			controllers = append(controllers, newController)
 		}
 		databasePointer = nil
@@ -93,17 +88,13 @@ func (c configuration) adapt() *Configuration {
 		}
 
 		for i := 0; i < len(c.Controllers); i++ {
-			JSON, err := json.Marshal(c.Controllers[i].Fallback)
-			if err != nil {
-				log.Fatal().Err(err).Msg("JSON error in Controller : " + c.Controllers[i].Name)
-			}
 			// The model the controller should use
 			for j := 0; j < len(models); j++ {
 				if c.Controllers[i].Model == models[j].Name {
 					controllermodel = &models[j]
 				}
 			}
-			newController := controller.Create(c.Controllers[i].Name, controllermodel, JSON, c.Controllers[i].cors)
+			newController := c.Controllers[i].adapt(controllermodel)
 			controllers = append(controllers, newController)
 		}
 		databasePointer = c.Database.adapt(db)
