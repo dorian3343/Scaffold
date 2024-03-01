@@ -12,46 +12,46 @@ import (
 )
 
 type Model struct {
-	Name     string
-	db       *sql.DB
-	template string
-	json     *jsonmap.Map
-	cachedT  *reflect.Type
+	Name               string
+	db                 *sql.DB
+	queryTemplate      string
+	json               *jsonmap.Map
+	generatedTypeCache *reflect.Type
 }
 
 func Create(name string, db *sql.DB, template string, JSON *jsonmap.Map) Model {
-	return Model{Name: name, db: db, template: template, json: JSON, cachedT: nil}
+	return Model{Name: name, db: db, queryTemplate: template, json: JSON, generatedTypeCache: nil}
 }
 
-// Fills out the query template with data from the json
+// Fills out the query queryTemplate with data from the json
 func (m Model) Querybuilder(x []byte) (string, error) {
-	json1 := jsonmap.New()
+	jsonRequest := jsonmap.New()
 
 	if len(x) == 0 {
-		log.Warn().Msg("Empty JSON template so Query is sent as is.")
-		return m.template, nil
+		log.Warn().Msg("Empty JSON queryTemplate so Query is sent as is.")
+		return m.queryTemplate, nil
 	}
 
-	err := json.Unmarshal(x, json1)
+	err := json.Unmarshal(x, jsonRequest)
 	if err != nil {
 		return "", errors.New("failed to decode JSON data: " + err.Error())
 	}
 	//Basic type caching
-	var T reflect.Type
-	if m.cachedT == nil {
-		T = generateStructFromJsonMap(*m.json)
-		m.cachedT = &T
+	var GeneratedType reflect.Type
+	if m.generatedTypeCache == nil {
+		GeneratedType = generateStructFromJsonMap(*m.json)
+		m.generatedTypeCache = &GeneratedType
 	} else {
-		T = *m.cachedT
+		GeneratedType = *m.generatedTypeCache
 	}
 
-	if matchesSpec(*json1, T) {
-		arrayData, err := MapToArray(json1)
+	if matchesSpec(*jsonRequest, GeneratedType) {
+		arrayData, err := MapToArray(jsonRequest)
 		if err != nil {
 			return "", err
 		}
-		// Get the number of placeholders in the template string
-		numPlaceholders := strings.Count(m.template, "%s")
+		// Get the number of placeholders in the queryTemplate string
+		numPlaceholders := strings.Count(m.queryTemplate, "%s")
 		// Truncate arrayData if it exceeds the number of placeholders
 		if numPlaceholders < len(arrayData) {
 			arrayData = arrayData[:numPlaceholders]
@@ -62,7 +62,7 @@ func (m Model) Querybuilder(x []byte) (string, error) {
 		for i, v := range arrayData {
 			args[i] = v
 		}
-		return fmt.Sprintf(m.template, args...), nil
+		return fmt.Sprintf(m.queryTemplate, args...), nil
 
 	} else {
 		err := "JSON request does not match spec"

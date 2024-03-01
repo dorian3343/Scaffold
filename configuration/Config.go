@@ -18,7 +18,7 @@ type server struct {
 	Services  []struct {
 		Route      string `yaml:"route"`
 		Controller string `yaml:"controller"`
-	} `yaml:"service(s)"`
+	} `yaml:"$service"`
 }
 
 type Server struct {
@@ -46,8 +46,8 @@ func (s server) adapt(controllers []controller.Controller) Server {
 /* Private configuration is meant to be adapted to the public one by converting yaml to functions */
 type configuration struct {
 	Database    database     `yaml:"database"`
-	Models      []model      `yaml:"model(s)"`
-	Controllers []Controller `yaml:"controller(s)"`
+	Models      []model      `yaml:"$model"`
+	Controllers []Controller `yaml:"$controller"`
 	Server      server       `yaml:"server"`
 }
 

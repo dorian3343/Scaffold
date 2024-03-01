@@ -34,7 +34,7 @@ database:
       age INTEGER
     );
   path: ./main.db
-model(s):
+$model:
   - name: add_user_model
     query-template: INSERT INTO user (name, age) VALUES ('%s', %s)
     json-template:
@@ -44,7 +44,7 @@ model(s):
         Type: integer
   - name: main_model
     query-template: SELECT * FROM user;
-controller(s):
+$controller:
   - name: main_controller
     fallback: Something went wrong
     model: main_model
@@ -53,7 +53,7 @@ controller(s):
     model: add_user_model
 server:
   port: 8080
-  service(s):
+  $service:
     - controller: main_controller
       route: /get_user
     - controller: second_controller

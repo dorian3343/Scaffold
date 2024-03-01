@@ -1,4 +1,4 @@
-controller(s):
+$controller:
   - fallback: {"message":"Hello"}
     name: main_controller
     CORS: true
@@ -9,7 +9,7 @@ controller(s):
     name: int_controller
 server:
   port: 8080
-  service(s):
+  $service:
     - controller: main_controller
       route: /Greeting
     - controller: status_controller
