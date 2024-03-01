@@ -1,5 +1,1 @@
-call go test ./...
-
-cd e2e/test_configs/
-
-call ruby test_runner.rb
+(go test ./... && cd e2e/test_configs/ && ruby test_runner.rb) | findstr FAIL
