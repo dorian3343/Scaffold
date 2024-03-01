@@ -75,7 +75,7 @@ func (c configuration) adapt() *Configuration {
 			if err != nil {
 				log.Fatal().Err(err).Msg("JSON error in Controller : " + c.Controllers[i].Name)
 			}
-			newController := controller.Create(c.Controllers[i].Name, nil, JSON, c.Controllers[i].CORS)
+			newController := controller.Create(c.Controllers[i].Name, nil, JSON, c.Controllers[i].cors)
 			controllers = append(controllers, newController)
 		}
 		databasePointer = nil
@@ -103,7 +103,7 @@ func (c configuration) adapt() *Configuration {
 					controllermodel = &models[j]
 				}
 			}
-			newController := controller.Create(c.Controllers[i].Name, controllermodel, JSON, c.Controllers[i].CORS)
+			newController := controller.Create(c.Controllers[i].Name, controllermodel, JSON, c.Controllers[i].cors)
 			controllers = append(controllers, newController)
 		}
 		databasePointer = c.Database.adapt(db)

@@ -32,18 +32,18 @@ type Controller struct {
 	Fallback interface{} `yaml:"fallback"`
 	Name     string      `yaml:"name"`
 	Model    string      `yaml:"model"`
-	CORS     bool        `yaml:"CORS"`
+	cors     bool        `yaml:"cors"`
 }
 
 // Struct representing a single field of a json spec
-type TypeSkeleton struct {
+type JsonSpecSkeleton struct {
 	Name string `yaml:"Name"`
 	Type string `yaml:"Type"`
 }
 
 type model struct {
-	QueryTemplate string         `yaml:"query-template"`
-	JsonTemplate  []TypeSkeleton `yaml:"json-template"`
+	QueryTemplate string             `yaml:"query-template"`
+	JsonTemplate  []JsonSpecSkeleton `yaml:"json-template"`
 	Name          string
 }
 

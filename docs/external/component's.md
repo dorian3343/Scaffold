@@ -30,7 +30,7 @@ controller(s):
   - name: name1 
     fallback: example 
     model: model1 
-    CORS: true 
+    cors: true 
 
     # name -> This is the name of the controller. YOou use this to attach it to other component's
     
@@ -39,7 +39,7 @@ controller(s):
     
     # model -> Attaches data handling to a controller, read up on them at the 'Model' section.
     
-    # CORS -> Enables/disables CORS, defaults to false
+    # cors -> Enables/disables CORS, defaults to false
 ```
 ### Database
 ```yaml
