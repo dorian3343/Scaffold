@@ -34,7 +34,7 @@ type Controller struct {
 	Fallback interface{} `yaml:"fallback"`
 	Name     string      `yaml:"name"`
 	Model    string      `yaml:"model"`
-	cors     bool        `yaml:"cors"`
+	Cors     string      `yaml:"cors"`
 }
 
 func (c Controller) adapt(model *model2.Model) controller.Controller {
@@ -42,7 +42,8 @@ func (c Controller) adapt(model *model2.Model) controller.Controller {
 	if err != nil {
 		log.Fatal().Err(err).Msg("JSON error in Controller : " + c.Name)
 	}
-	return controller.Create(c.Name, model, JSON, c.cors)
+
+	return controller.Create(c.Name, model, JSON, c.Cors)
 }
 
 // Struct representing a single field of a json spec

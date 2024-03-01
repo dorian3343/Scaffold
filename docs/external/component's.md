@@ -30,7 +30,7 @@ $controller:
   - name: name1 
     fallback: example 
     model: model1 
-    cors: true 
+    cors: "*" 
 
     # name -> This is the name of the controller. YOou use this to attach it to other component's
     
@@ -39,7 +39,7 @@ $controller:
     
     # model -> Attaches data handling to a controller, read up on them at the 'Model' section.
     
-    # cors -> Enables/disables CORS, defaults to false
+    # cors -> Sets a cors value to input string, without setting it, nothing gets set
 ```
 ### Database
 ```yaml

@@ -48,6 +48,7 @@ $controller:
   - name: main_controller
     fallback: Something went wrong
     model: main_model
+    cors: "*"
   - name: second_controller
     fallback: Something went wrong
     model: add_user_model
