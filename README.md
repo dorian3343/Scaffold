@@ -24,7 +24,7 @@ A repetitive backend generator. Generate endpoints, quickly and with as few LOC'
 * Fast development time
 
 ## Example
-This example define's two endpoint's, one to create user's and one to retrieve all the user's.
+This example define's four endpoint's, one to create user's,one to retrieve a user, one to delete a user and one to get all the Users.
 ```yaml
 database:
   init-query: |
@@ -38,28 +38,46 @@ $model:
   - name: add_user_model
     query-template: INSERT INTO user (name, age) VALUES ('%s', %s)
     json-template:
-      - Name: name
+      - Name: Name
         Type: string
-      - Name: age
+      - Name: Age
         Type: integer
   - name: main_model
     query-template: SELECT * FROM user;
+  - name: delete_user_model
+    query-template: DELETE FROM user WHERE name='%s'
+    json-template:
+      - Name: Name
+        Type: string
+  - name: select_user_model
+    query-template: SELECT * FROM user WHERE name='%s'
+    json-template:
+      - Name: Name
+        Type: string
 $controller:
   - name: main_controller
     fallback: Something went wrong
     model: main_model
-    cors: "*"
   - name: second_controller
     fallback: Something went wrong
     model: add_user_model
+  - name: third_controller
+    fallback: Something went wrong
+    model: delete_user_model
+  - name: fourth_controller
+    fallback: Something went wrong
+    model: select_user_model
 server:
   port: 8080
   $service:
     - controller: main_controller
-      route: /get_user
+      route: /show_user
     - controller: second_controller
-      route: /post_user
-
+      route: /add_user
+    - controller: third_controller
+      route: /delete_user
+    - controller: fourth_controller
+      route: /select
 ```
 
 
