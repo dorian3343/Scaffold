@@ -82,7 +82,7 @@ func (c configuration) adapt() (*Configuration, error) {
 
 	} else {
 		// call closeDB to defer the db close
-		db, closeDB, _ := createDB(c.Database.InitQuery, c.Database.Path)
+		db, closeDB := createDB(c.Database.InitQuery, c.Database.Path)
 		var controllermodel *model2.Model
 
 		// Adapt all the models to actual data models
@@ -172,13 +172,13 @@ func Setup(path string) (*Configuration, func()) {
 }
 
 // Setup a database
-func createDB(query string, databaseName string) (*sql.DB, func(), error) {
+func createDB(query string, databaseName string) (*sql.DB, func()) {
 	/* Check if Database file exists */
 	_, err := os.Stat(databaseName)
 	if os.IsNotExist(err) {
 		_, err2 := os.Create(databaseName)
 		if err2 != nil {
-			return nil, nil, err2
+			log.Fatal().Err(err).Msg("Something went wrong with creating Database")
 		}
 	}
 	// Create the Connection
@@ -197,5 +197,5 @@ func createDB(query string, databaseName string) (*sql.DB, func(), error) {
 			log.Fatal().Err(err).Msg("Failed to close the database")
 		}
 	}
-	return db, closeDB, nil
+	return db, closeDB
 }
