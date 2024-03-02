@@ -39,7 +39,7 @@ func (m Model) Querybuilder(x []byte) (string, error) {
 	//Basic type caching
 	var GeneratedType reflect.Type
 	if m.generatedTypeCache == nil {
-		GeneratedType = generateStructFromJsonMap(*m.json)
+		GeneratedType = GenerateStructFromJsonMap(*m.json)
 		m.generatedTypeCache = &GeneratedType
 	} else {
 		GeneratedType = *m.generatedTypeCache
