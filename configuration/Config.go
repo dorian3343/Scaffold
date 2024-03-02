@@ -59,7 +59,7 @@ type Configuration struct {
 }
 
 // Adapt adapts the configuration, converting FallbackJSON to actual controllers.
-func (c configuration) adapt() *Configuration {
+func (c configuration) adapt() (*Configuration, error) {
 
 	var controllers []controller.Controller
 	var databasePointer *Database
@@ -70,7 +70,10 @@ func (c configuration) adapt() *Configuration {
 		log.Warn().Msg("Missing Database in main.yml : Models are disabled")
 		// Set all the models to nil, effectively disabling models
 		for i := 0; i < len(c.Controllers); i++ {
-			newController := c.Controllers[i].adapt(nil)
+			newController, err := c.Controllers[i].adapt(nil)
+			if err != nil {
+				return nil, err
+			}
 			controllers = append(controllers, newController)
 		}
 		databasePointer = nil
@@ -84,7 +87,11 @@ func (c configuration) adapt() *Configuration {
 
 		// Adapt all the models to actual data models
 		for i := 0; i < len(c.Models); i++ {
-			models = append(models, c.Models[i].adapt(db))
+			adapted, err := c.Models[i].adapt(db)
+			if err != nil {
+				return nil, err
+			}
+			models = append(models, adapted)
 		}
 
 		for i := 0; i < len(c.Controllers); i++ {
@@ -94,7 +101,10 @@ func (c configuration) adapt() *Configuration {
 					controllermodel = &models[j]
 				}
 			}
-			newController := c.Controllers[i].adapt(controllermodel)
+			newController, err := c.Controllers[i].adapt(controllermodel)
+			if err != nil {
+				return nil, err
+			}
 			controllers = append(controllers, newController)
 		}
 		databasePointer = c.Database.adapt(db)
@@ -106,7 +116,7 @@ func (c configuration) adapt() *Configuration {
 		Models:          models,
 		Server:          c.Server.adapt(controllers),
 		DatabaseClosure: databaseClosure,
-	}
+	}, nil
 
 }
 
@@ -122,7 +132,12 @@ func create(filename string) (*Configuration, error) {
 	if err != nil {
 		return nil, err
 	}
-	return config.adapt(), nil
+
+	finalConf, newerr := config.adapt()
+	if newerr != nil {
+		return nil, newerr
+	}
+	return finalConf, nil
 }
 
 // Setup the config + logging

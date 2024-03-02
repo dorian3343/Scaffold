@@ -4,8 +4,8 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/metalim/jsonmap"
-	"github.com/rs/zerolog/log"
 	"service/components/controller"
 	model2 "service/components/model"
 )
@@ -37,13 +37,12 @@ type Controller struct {
 	Cors     string      `yaml:"cors"`
 }
 
-func (c Controller) adapt(model *model2.Model) controller.Controller {
+func (c Controller) adapt(model *model2.Model) (controller.Controller, error) {
 	JSON, err := json.Marshal(c.Fallback)
 	if err != nil {
-		log.Fatal().Err(err).Msg("JSON error in Controller : " + c.Name)
+		return controller.Controller{}, errors.New(fmt.Sprintf("Json error in Controller : %s", c.Name))
 	}
-
-	return controller.Create(c.Name, model, JSON, c.Cors)
+	return controller.Create(c.Name, model, JSON, c.Cors), nil
 }
 
 // Struct representing a single field of a json spec
@@ -59,14 +58,14 @@ type model struct {
 }
 
 // Adapt the fake model type into the actual model which has access to the database
-func (m model) adapt(db *sql.DB) model2.Model {
+func (m model) adapt(db *sql.DB) (model2.Model, error) {
 	f := jsonmap.New()
 	for i := 0; i < len(m.JsonTemplate); i++ {
 		if m.JsonTemplate[i].Type == "" || m.JsonTemplate[i].Name == "" {
-			log.Fatal().Err(errors.New("missing Value in Json Template")).Msg("Something went wrong with JSON template's ")
+			return model2.Model{}, errors.New("missing Value or Type in Json Template field")
 		} else {
 			f.Set(m.JsonTemplate[i].Name, m.JsonTemplate[i].Type)
 		}
 	}
-	return model2.Create(m.Name, db, m.QueryTemplate, f)
+	return model2.Create(m.Name, db, m.QueryTemplate, f), nil
 }
