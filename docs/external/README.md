@@ -16,4 +16,5 @@ The controller then makes its first decision: should it serve static content (HT
 If not, it checks if it has an attached model. If it doesn't, it returns the fallback; 
 otherwise, it tries to retrieve data from the database 
 and returns the fallback if it encounters an error.
+---
 ![process-flowchart.png](process-flowchart.png)
