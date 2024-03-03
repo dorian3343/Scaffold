@@ -4,6 +4,7 @@ import (
 	_ "github.com/glebarez/go-sqlite"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
+	"net/http"
 	"os"
 	"service/components/controller"
 	"service/configuration"
@@ -12,7 +13,7 @@ import (
 )
 
 func main() {
-	// measure time timetostart
+	// measure time time to start
 	start := time.Now()
 	// Set pretty logging straight away
 	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
@@ -24,8 +25,25 @@ func main() {
 
 	//Attach Controllers to HTTP + Start the HTTP server
 	controller.SetupControllers(conf.Server.Services)
+
+	//Serve static
+	if conf.Server.Static != "" {
+		// Check if the folder exists
+		if _, err := os.Stat(conf.Server.Static); err != nil {
+			if os.IsNotExist(err) {
+				log.Fatal().Msgf("Static folder '%s' does not exist", conf.Server.Static)
+			} else {
+				log.Fatal().Msgf("Error checking static folder '%s': %v", conf.Server.Static, err)
+			}
+		}
+
+		// If the folder exists, serve files from it
+		http.Handle("/", http.FileServer(http.Dir(conf.Server.Static)))
+	}
+
 	end := time.Now()
 	elapsed := end.Sub(start)
 	log.Info().Msgf("Project built in : %s", elapsed)
+
 	misc.StartHttp(conf.Server.Port)
 }

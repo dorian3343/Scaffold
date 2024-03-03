@@ -10,12 +10,14 @@ Here you configure the web server and define route's.
 ```YAML
 server: 
   port: 80 
+  static: ./static
   target-log: ./main.json 
   $service: 
     - controller: example 
       route: /Example 
   
   # port -> Set's the server's port to the int value.
+  # static -> display's the static content of the input server @ path '/'
   # target-log -> Set's the target file for logging, if left empty it only prints to stdout
   # $service -> Connects an endpoint to a Scaffold Controller
   # controller -> Set the controller for the specific service. These can be reused. Use the controller's name.
