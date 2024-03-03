@@ -17,4 +17,6 @@ If not, it checks if it has an attached model. If it doesn't, it returns the fal
 otherwise, it tries to retrieve data from the database 
 and returns the fallback if it encounters an error.
 ---
-![process-flowchart.png](process-flowchart.png)
+<div style="text-align:center">
+<img src="process-flowchart.png" alt="flowchart"/>
+</div>
