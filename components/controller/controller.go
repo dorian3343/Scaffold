@@ -30,21 +30,31 @@ func Create(name string, datamodel *model.Model, fallback []byte, cors string) C
 	return Controller{Name: name, Model: datamodel, Fallback: fallback, cors: cors}
 }
 
-/* logic is the function to fulfill the http.Handler interface. */
-func (c Controller) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	//Enable cors
+func (c Controller) handleNoModelRequest(w http.ResponseWriter) {
+	w.Header().Set("Content-Type", "application/json")
+	_, err := w.Write(c.Fallback)
+	if err != nil {
+		log.Err(err).Msg("Something went wrong with Fallback")
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+}
+func (c Controller) handleCors(w http.ResponseWriter) {
 	if c.cors != "" {
 		w.Header().Set("Access-Control-Allow-Origin", c.cors)
 	}
+
+}
+
+/* logic is the function to fulfill the http.Handler interface. */
+func (c Controller) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	//Enable cors
+	c.handleCors(w)
 	if c.Model == nil {
-		w.Header().Set("Content-Type", "application/json")
-		_, err := w.Write(c.Fallback)
-		if err != nil {
-			log.Err(err).Msg("Something went wrong with Fallback")
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-			return
-		}
+		c.handleNoModelRequest(w)
 	} else {
+		var results []map[string]interface{}
+
 		body, err := io.ReadAll(r.Body)
 		if err != nil {
 			log.Err(err).Msg("Something went wrong with reading the request body")
@@ -65,6 +75,7 @@ func (c Controller) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
+		// Make the db query
 		result, err := c.Model.Query(query)
 		if err != nil {
 			log.Err(err).Msg("Something went wrong with querying database")
@@ -74,7 +85,6 @@ func (c Controller) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		defer result.Close()
 
 		// Convert the result to a slice of maps
-		var results []map[string]interface{}
 		columns, err := result.Columns()
 		if err != nil {
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
