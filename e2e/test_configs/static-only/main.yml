@@ -1,0 +1,9 @@
+$controller:
+  - name: main_controller
+    fallback: {"message":"API"}
+server:
+  static: ./static
+  port: 8080
+  $service:
+    - controller: main_controller
+      route: /api
