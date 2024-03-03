@@ -5,8 +5,8 @@
 A repetitive backend generator. Generate endpoints, quickly and with as few LOC's as possible.
 
 ## Documentation
-1. [External Documentation](./docs/external/README.md)
-2. [Internal Documentation](./docs/internal/README.md)
+1. [External Documentation (For User's)](./docs/external/README.md)
+2. [Internal Documentation (For Developer's)](./docs/internal/README.md)
 
 
 ## How to setup Scaffold
