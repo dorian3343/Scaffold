@@ -17,12 +17,16 @@ Scaffold is an easy to use HTTP API generator that abstract's away writing any c
 * Easy to use database (Embedded sqlite)
 * Fast development time
 
-## How to setup Scaffold
-1. Download the Latest Scaffold Release from the github repository.
-2. Decompress and open the Scaffold folder.
-3. Edit the main.yml file to work on your project
-4. Start your project by running Scaffold.exe (prebuilt binary)
-5. Test your backend
+## How to use Scaffold's CLI
+1. Initialize the project
+```
+Scaffold init <your project name>
+```
+2. Edit the main.yml file in the project
+3. Run Scaffold on your project
+```
+Scaffold run <your project name>
+```
 
 ## Example
 This example define's four endpoint's, one to create user's,one to retrieve a user, one to delete a user and one to get all the Users.
