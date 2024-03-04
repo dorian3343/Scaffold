@@ -8,6 +8,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"service/components/controller"
 	"service/configuration"
 	"service/misc"
@@ -23,10 +24,54 @@ func printVersion() {
 	}
 }
 
+func projectInit(x string) {
+	// Create directory x relative to the current working directory
+	err := os.Mkdir(x, 0777)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	// Create main.yml file within the newly created directory
+	filename := filepath.Join(x, "main.yml")
+	file, err := os.Create(filename)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	defer func(file *os.File) {
+		err := file.Close()
+		if err != nil {
+			fmt.Println(err)
+		}
+	}(file)
+	yamlString := `
+$controller:
+  - name: main_controller
+    fallback: hello world
+server:
+  port: 8080
+  $service:
+    - controller: main_controller
+      route: /api
+`
+	_, err = file.WriteString(yamlString)
+	if err != nil {
+		fmt.Println("Error writing to file:", err)
+		return
+	}
+	fmt.Println("Project Created Successfully")
+}
+
 func main() {
 	//Print version
 	if len(os.Args) > 1 && os.Args[1] == "version" {
 		printVersion()
+		os.Exit(0)
+	}
+	//Create a new empty project
+	if len(os.Args) > 2 && os.Args[1] == "init" {
+		projectInit(os.Args[2])
 		os.Exit(0)
 	}
 	if len(os.Args) > 1 && os.Args[1] == "run" {
@@ -82,7 +127,8 @@ Usage:
 
 List of commands:
 	version   print out your scaffold version
-	run       run the Scaffold from a config in a specified directory`)
+	run       run the scaffold from a config in a specified directory
+	init	  creates a new project from a template  `)
 		fmt.Println("\nTool by Dorian Kalaczyński")
 		os.Exit(0)
 	}
