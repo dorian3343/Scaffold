@@ -53,8 +53,7 @@ begin
     puts("Linux build completed successfully!")
 
     # Create main.yml for Linux
-    File.write("#{linux_dir}/main.yml", "")
-    puts("Created main.yml for Linux")
+    File.write("#{linux_dir}/VERSION", version)
 rescue => e
     puts("Error during Linux compilation: #{e.message}")
     exit 1
@@ -66,8 +65,7 @@ begin
     puts("Windows build completed successfully!")
 
     # Create main.yml for Windows
-    File.write("#{windows_dir}/main.yml", "")
-    puts("Created main.yml for Windows")
+    File.write("#{windows_dir}/VERSION", version)
 rescue => e
     puts("Error during Windows compilation: #{e.message}")
     exit 1
