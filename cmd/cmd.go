@@ -97,9 +97,10 @@ func GenerateDoc(path string) {
 		if value.Model == nil && slices.Equal(value.Fallback, []byte("null")) {
 			docString.WriteString("This route does nothing\n")
 		} else if value.Model == nil {
-			docString.WriteString("This route returns:\n ```\n" + string(value.Fallback) + "```\n")
+			docString.WriteString("This route returns:\n ```JSON\n" + string(value.Fallback) + "```\n")
 		} else {
 			docString.WriteString("This route runs the query:\n ```SQL\n" + value.Model.GetQuery() + "\n```\n")
+			docString.WriteString("and fallsback to:\n ```JSON\n" + string(value.Fallback) + "\n```\n")
 		}
 	}
 
