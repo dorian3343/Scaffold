@@ -6,6 +6,8 @@
 ## What is Scaffold?
 Scaffold is an easy to use HTTP API generator that abstract's away writing any code and replacing it with an elegant configuration system. It allow's to quickly setup simple endpoint's be it for prototyping or getting boring / repetetive work done quickly.
 
+
+
 ## Documentation
 1. [External Documentation (For User's)](./docs/external/README.md)
 2. [Internal Documentation (For Developer's)](./docs/internal/README.md)
