@@ -22,6 +22,9 @@ type Model struct {
 func Create(name string, db *sql.DB, template string, JSON *jsonmap.Map) Model {
 	return Model{Name: name, db: db, queryTemplate: template, json: JSON, generatedTypeCache: nil}
 }
+func (m Model) GetQuery() string {
+	return m.queryTemplate
+}
 
 // Fills out the query queryTemplate with data from the json
 func (m Model) Querybuilder(x []byte) (string, error) {

@@ -8,72 +8,42 @@ import (
 	"github.com/rs/zerolog/log"
 	"net/http"
 	"os"
-	"path/filepath"
+	"service/cmd"
 	"service/components/controller"
 	"service/configuration"
 	"service/misc"
 	"time"
 )
 
-func printVersion() {
-	body, err := os.ReadFile("VERSION")
-	if err != nil {
-		fmt.Println("Something went wrong reading version: " + err.Error())
-	} else {
-		fmt.Println(string(body))
-	}
-}
-
-func projectInit(x string) {
-	// Create directory x relative to the current working directory
-	err := os.Mkdir(x, 0777)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	// Create main.yml file within the newly created directory
-	filename := filepath.Join(x, "main.yml")
-	file, err := os.Create(filename)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	defer func(file *os.File) {
-		err := file.Close()
-		if err != nil {
-			fmt.Println(err)
-		}
-	}(file)
-	yamlString := `
-$controller:
-  - name: main_controller
-    fallback: hello world
-server:
-  port: 8080
-  $service:
-    - controller: main_controller
-      route: /api
-`
-	_, err = file.WriteString(yamlString)
-	if err != nil {
-		fmt.Println("Error writing to file:", err)
-		return
-	}
-	fmt.Println("Project Created Successfully")
-}
-
 func main() {
 	//Print version
 	if len(os.Args) > 1 && os.Args[1] == "version" {
-		printVersion()
+		cmd.PrintVersion()
 		os.Exit(0)
 	}
 	//Create a new empty project
-	if len(os.Args) > 2 && os.Args[1] == "init" {
-		projectInit(os.Args[2])
-		os.Exit(0)
+	if len(os.Args) > 1 && os.Args[1] == "init" {
+		if len(os.Args) > 2 {
+			cmd.ProjectInit(os.Args[2])
+			os.Exit(0)
+		} else {
+			fmt.Println("Error: Missing project name")
+			os.Exit(1)
+		}
 	}
+
+	//Generate docs for a project
+	if len(os.Args) > 1 && os.Args[1] == "auto-doc" {
+		if len(os.Args) > 2 {
+			cmd.GenerateDoc(os.Args[2])
+			os.Exit(0)
+		} else {
+			fmt.Println("Error: Missing project name")
+			os.Exit(1)
+		}
+	}
+
+	// Run a scaffold app in current dir or a specified
 	if len(os.Args) > 1 && os.Args[1] == "run" {
 		entrypoint := "./main.yml"
 
@@ -120,17 +90,7 @@ func main() {
 	}
 	if flag.NArg() == 0 {
 		// Print help message
-		fmt.Println(`Scaffold is a tool for building APIs fast and easy
-
-Usage:
-	Scaffold <command> [argument]
-
-List of commands:
-	version   print out your scaffold version
-	run       run the scaffold from a config in a specified directory
-	init	  creates a new project from a template  `)
-		fmt.Println("\nTool by Dorian Kalaczyński")
-		os.Exit(0)
+		cmd.PrintGuide()
 	}
 
 }
