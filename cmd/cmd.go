@@ -87,6 +87,10 @@ func GenerateDoc(path string) {
 	docString.WriteString("# " + path + " auto docs\n")
 	docString.WriteString("This is auto generated documentation using Scaffold's auto-doc command\n")
 
+	if conf.Database.InitQuery != "" {
+		docString.WriteString("## Database\n The database initializes using this query :\n```SQL\n" + conf.Database.InitQuery + "\n```\n")
+	}
+
 	if conf.Server.Static != "" {
 		docString.WriteString("## " + " Static content\n")
 		docString.WriteString("Static content is being served at the server's address on the route '/' \n")
