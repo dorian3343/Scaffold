@@ -46,7 +46,7 @@ func matchesSpec(Y jsonmap.Map, T reflect.Type) bool {
 
 // Generates a type from a jsonmap.map, the intended usage is to  generate types from the configuration,
 // to match requests against a spec
-func generateStructFromJsonMap(f jsonmap.Map) reflect.Type {
+func GenerateStructFromJsonMap(f jsonmap.Map) reflect.Type {
 	fields := make([]reflect.StructField, 0, len(f.Keys()))
 	for _, Name := range f.Keys() {
 		x, ok := f.Get(Name)

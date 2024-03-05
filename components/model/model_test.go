@@ -59,15 +59,15 @@ func TestMatchesSpec(t *testing.T) {
 	if err != nil {
 		fmt.Println("Error decoding JSON:", err)
 	}
-	T := generateStructFromJsonMap(*testjsonmap)
+	T := GenerateStructFromJsonMap(*testjsonmap)
 	if !matchesSpec(*json1, T) {
 		t.Error("Request does not match spec")
 	}
-	T = generateStructFromJsonMap(*testjsonmap2)
+	T = GenerateStructFromJsonMap(*testjsonmap2)
 	if matchesSpec(*json1, T) {
 		t.Error("Request does not match spec")
 	}
-	T = generateStructFromJsonMap(*testjsonmap3)
+	T = GenerateStructFromJsonMap(*testjsonmap3)
 	if matchesSpec(*json1, T) {
 		t.Error("Request does not match spec")
 	}

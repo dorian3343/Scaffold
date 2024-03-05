@@ -1,6 +1,7 @@
 package main
 
 import (
+	_ "github.com/glebarez/go-sqlite"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"net/http"
@@ -10,8 +11,6 @@ import (
 	"service/misc"
 	"time"
 )
-
-// This is not part of the codebase, this is just an automated test
 
 func main() {
 	// measure time time to start

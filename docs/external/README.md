@@ -8,9 +8,13 @@ application.
 1. [Components](component's.md)
 2. [Good practices](good-practices.md)
 
-## How to setup Scaffold
-1. Download the Latest Scaffold Release from the github repository.
-2. Decompress and open the Scaffold folder.
-3. Edit the main.fml file and build your project
-4. Start your project by running Scaffold.exe (prebuilt binary)
-5. Test your backend
+## Flow Chart for Scaffold's API process
+Scaffold has a simple yet effective process.
+It starts with an API consumer making a request to a route with an attached controller. 
+The controller first checks if it has an attached model. If it doesn't, it returns the fallback;
+otherwise, it tries to retrieve data from the database 
+and returns the fallback if it encounters an error.
+---
+<p align="center" width="100%">
+<img src="process-flowchart.png" alt="flowchart"/>
+</p>

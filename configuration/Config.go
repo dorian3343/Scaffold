@@ -2,28 +2,29 @@ package configuration
 
 import (
 	"database/sql"
-	"encoding/json"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"gopkg.in/yaml.v3"
 	"os"
-	"service/controller"
-	model2 "service/model"
+	"service/components/controller"
+	model2 "service/components/model"
 )
 
 /* Private server config to only be used for constructing the public one*/
 type server struct {
 	Port      int    `yaml:"port"`
+	Static    string `yaml:"static"`
 	TargetLog string `yaml:"target-log"`
 	Services  []struct {
 		Route      string `yaml:"route"`
 		Controller string `yaml:"controller"`
-	} `yaml:"service(s)"`
+	} `yaml:"$service"`
 }
 
 type Server struct {
 	Port      int
 	TargetLog string
+	Static    string
 	Services  map[string]controller.Controller
 }
 
@@ -40,14 +41,14 @@ func (s server) adapt(controllers []controller.Controller) Server {
 		services[s.Services[i].Route] = cont
 	}
 
-	return Server{Port: s.Port, TargetLog: s.TargetLog, Services: services}
+	return Server{Port: s.Port, Static: s.Static, TargetLog: s.TargetLog, Services: services}
 }
 
 /* Private configuration is meant to be adapted to the public one by converting yaml to functions */
 type configuration struct {
 	Database    database     `yaml:"database"`
-	Models      []model      `yaml:"model(s)"`
-	Controllers []Controller `yaml:"controller(s)"`
+	Models      []model      `yaml:"$model"`
+	Controllers []Controller `yaml:"$controller"`
 	Server      server       `yaml:"server"`
 }
 
@@ -60,7 +61,7 @@ type Configuration struct {
 }
 
 // Adapt adapts the configuration, converting FallbackJSON to actual controllers.
-func (c configuration) adapt() *Configuration {
+func (c configuration) adapt() (*Configuration, error) {
 
 	var controllers []controller.Controller
 	var databasePointer *Database
@@ -71,11 +72,10 @@ func (c configuration) adapt() *Configuration {
 		log.Warn().Msg("Missing Database in main.yml : Models are disabled")
 		// Set all the models to nil, effectively disabling models
 		for i := 0; i < len(c.Controllers); i++ {
-			JSON, err := json.Marshal(c.Controllers[i].Fallback)
+			newController, err := c.Controllers[i].adapt(nil)
 			if err != nil {
-				log.Fatal().Err(err).Msg("JSON error in Controller : " + c.Controllers[i].Name)
+				return nil, err
 			}
-			newController := controller.Create(c.Controllers[i].Name, nil, JSON, c.Controllers[i].cors)
 			controllers = append(controllers, newController)
 		}
 		databasePointer = nil
@@ -89,21 +89,24 @@ func (c configuration) adapt() *Configuration {
 
 		// Adapt all the models to actual data models
 		for i := 0; i < len(c.Models); i++ {
-			models = append(models, c.Models[i].adapt(db))
+			adapted, err := c.Models[i].adapt(db)
+			if err != nil {
+				return nil, err
+			}
+			models = append(models, adapted)
 		}
 
 		for i := 0; i < len(c.Controllers); i++ {
-			JSON, err := json.Marshal(c.Controllers[i].Fallback)
-			if err != nil {
-				log.Fatal().Err(err).Msg("JSON error in Controller : " + c.Controllers[i].Name)
-			}
 			// The model the controller should use
 			for j := 0; j < len(models); j++ {
 				if c.Controllers[i].Model == models[j].Name {
 					controllermodel = &models[j]
 				}
 			}
-			newController := controller.Create(c.Controllers[i].Name, controllermodel, JSON, c.Controllers[i].cors)
+			newController, err := c.Controllers[i].adapt(controllermodel)
+			if err != nil {
+				return nil, err
+			}
 			controllers = append(controllers, newController)
 		}
 		databasePointer = c.Database.adapt(db)
@@ -115,7 +118,7 @@ func (c configuration) adapt() *Configuration {
 		Models:          models,
 		Server:          c.Server.adapt(controllers),
 		DatabaseClosure: databaseClosure,
-	}
+	}, nil
 
 }
 
@@ -131,7 +134,12 @@ func create(filename string) (*Configuration, error) {
 	if err != nil {
 		return nil, err
 	}
-	return config.adapt(), nil
+
+	finalConf, newerr := config.adapt()
+	if newerr != nil {
+		return nil, newerr
+	}
+	return finalConf, nil
 }
 
 // Setup the config + logging

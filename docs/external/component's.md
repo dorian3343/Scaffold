@@ -10,14 +10,16 @@ Here you configure the web server and define route's.
 ```YAML
 server: 
   port: 80 
+  static: ./static
   target-log: ./main.json 
-  service(s): 
+  $service: 
     - controller: example 
       route: /Example 
   
   # port -> Set's the server's port to the int value.
+  # static -> display's the static content of the input server @ path '/'
   # target-log -> Set's the target file for logging, if left empty it only prints to stdout
-  # service(s) -> Connects an endpoint to a Scaffold Controller
+  # $service -> Connects an endpoint to a Scaffold Controller
   # controller -> Set the controller for the specific service. These can be reused. Use the controller's name.
   # route -> Exposes an endpoint to handle a service.
   ```
@@ -26,11 +28,11 @@ server:
 Controllers are the point of entry for your application's users. They attach basic logic to a route (which can be extended with Models).
 
 ```yaml
-controller(s):
+$controller:
   - name: name1 
     fallback: example 
     model: model1 
-    cors: true 
+    cors: "*" 
 
     # name -> This is the name of the controller. YOou use this to attach it to other component's
     
@@ -39,7 +41,7 @@ controller(s):
     
     # model -> Attaches data handling to a controller, read up on them at the 'Model' section.
     
-    # cors -> Enables/disables CORS, defaults to false
+    # cors -> Sets a cors value to input string, without setting it, nothing gets set
 ```
 ### Database
 ```yaml
@@ -59,7 +61,7 @@ database:
 ### Model
 Model's handle data operations, they communicate through the Controller's.
 ```yaml
-model(s):
+$model:
   - name: add_user_model
     query-template: INSERT INTO user (name, age) VALUES ('%s', %s)
     json-template:
@@ -86,7 +88,7 @@ Using YAML's Array syntax you can define multiple Component's
 if multiple component's are allowed the name will end with (s) 'controller(s) , service(s) etc'
 ```yaml
 # Example with Controller's
-controller(s):
+$controller:
   - fallback: Hello world
     name: main_controller
   - fallback: Hello from scaffold
@@ -97,7 +99,7 @@ controller(s):
     name: obj_controller
 
 #Example with Service's
-service(s):
+$service:
   - controller: main_controller
     route: /Greeting
   - controller: second_controller
