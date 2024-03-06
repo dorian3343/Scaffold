@@ -4,13 +4,13 @@
 ---
 
 ## What is Scaffold?
-Scaffold is an easy to use HTTP API generator that abstract's away writing any code and replacing it with an elegant configuration system. It allow's to quickly setup simple endpoint's be it for prototyping or getting boring / repetetive work done quickly.
+Scaffold is an easy-to-use HTTP API generator that abstracts away writing any code and replaces it with an elegant configuration system. It allows you to quickly set up simple endpoints, whether for prototyping or getting boring/repetitive work done quickly.
 
 
 
 ## Documentation
-1. [External Documentation (For User's)](./docs/external/README.md)
-2. [Internal Documentation (For Developer's)](./docs/internal/README.md)
+1. [External Documentation (For Users)](./docs/external/README.md)
+2. [Internal Documentation (For Developers)](./docs/internal/README.md)
 
 ## Features
 
@@ -20,7 +20,7 @@ Scaffold is an easy to use HTTP API generator that abstract's away writing any c
 * Fast development time
 
 ## How to use Scaffold's CLI
-0. You may want to add the Binary to your path so that you can call the cli from anywhere.
+0. You may want to create a symlink for the cli to call it from anywhere
 1. Initialize the project
 ```
 Scaffold init <your project name>
@@ -32,7 +32,7 @@ Scaffold run <your project name>
 ```
 
 ## Example
-This example define's four endpoint's, one to create user's,one to retrieve a user, one to delete a user and one to get all the Users.
+This example defines four endpoints: one to create users, one to retrieve a user, one to delete a user, and one to get all the users
 ```yaml
 database:
   init-query: |
