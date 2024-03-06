@@ -20,7 +20,7 @@ Scaffold is an easy to use HTTP API generator that abstract's away writing any c
 * Fast development time
 
 ## How to use Scaffold's CLI
-0. You may want to add the Binary to your path so that you can call the cli from anywhere.
+0. You may want to create a symlink for the cli to call it from anywhere
 1. Initialize the project
 ```
 Scaffold init <your project name>
