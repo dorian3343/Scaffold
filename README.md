@@ -9,8 +9,8 @@ Scaffold is an easy-to-use HTTP API generator that abstracts away writing any co
 
 
 ## Documentation
-1. [External Documentation (For User's)](./docs/external/README.md)
-2. [Internal Documentation (For Developer's)](./docs/internal/README.md)
+1. [External Documentation (For Users)](./docs/external/README.md)
+2. [Internal Documentation (For Developers)](./docs/internal/README.md)
 
 ## Features
 
