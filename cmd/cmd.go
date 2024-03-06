@@ -86,9 +86,10 @@ func GenerateDoc(path string) {
 	}
 	docString.WriteString("# " + path + " auto docs\n")
 	docString.WriteString("This is auto generated documentation using Scaffold's auto-doc command\n")
-
-	if conf.Database.InitQuery != "" {
-		docString.WriteString("## Database\n The database initializes using this query :\n```SQL\n" + conf.Database.InitQuery + "\n```\n")
+	if conf.Database != nil {
+		if conf.Database.InitQuery != "" {
+			docString.WriteString("## Database\n The database initializes using this query :\n```SQL\n" + conf.Database.InitQuery + "\n```\n")
+		}
 	}
 
 	if conf.Server.Static != "" {
@@ -101,7 +102,8 @@ func GenerateDoc(path string) {
 		if value.Model == nil && slices.Equal(value.Fallback, []byte("null")) {
 			docString.WriteString("This route does nothing\n")
 		} else if value.Model == nil {
-			docString.WriteString("This route returns:\n ```JSON\n" + string(value.Fallback) + "```\n")
+			fmt.Println(string(value.Fallback))
+			docString.WriteString("This route returns:\n```JSON\n" + string(value.Fallback) + "\n```\n")
 		} else {
 			docString.WriteString("This route runs the query:\n ```SQL\n" + value.Model.GetQuery() + "\n```\n")
 			docString.WriteString("and fallsback to:\n ```JSON\n" + string(value.Fallback) + "\n```\n")
