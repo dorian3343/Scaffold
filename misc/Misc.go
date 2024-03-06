@@ -3,6 +3,7 @@ package misc
 import (
 	"fmt"
 	"github.com/rs/zerolog/log"
+	"net"
 	"net/http"
 	"strconv"
 )
@@ -13,14 +14,31 @@ func WelcomeMessage() {
 	fmt.Println(text)
 }
 
+func GetLocalIP() string {
+	addrs, err := net.InterfaceAddrs()
+	if err != nil {
+		return ""
+	}
+	for _, address := range addrs {
+		// check the address type and if it is not a loopback the display it
+		if ipnet, ok := address.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
+			if ipnet.IP.To4() != nil {
+				return ipnet.IP.String()
+			}
+		}
+	}
+	return ""
+}
+
 // Startup a http server on a port
 func StartHttp(port int) {
-	log.Info().Msg("Starting HTTP server...")
+	ip := GetLocalIP()
+	url := fmt.Sprintf("http://%s:%d", ip, port)
+	log.Info().Msgf("Server is running at: %s", url)
 	err := http.ListenAndServe(":"+strconv.Itoa(port), nil)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Fatal Error with http server")
 	}
-
 }
 
 // Capitalize a string
