@@ -6,6 +6,7 @@ $controller:
     name: status_controller
   - fallback: 69
     name: int_controller
+    cache: "max-age=604800"
 server:
   port: 8080
   $service:
