@@ -35,6 +35,7 @@ type Controller struct {
 	Name     string      `yaml:"name"`
 	Model    string      `yaml:"model"`
 	Cors     string      `yaml:"cors"`
+	Cache    string      `yaml:"cache"`
 }
 
 func (c Controller) adapt(model *model2.Model) (controller.Controller, error) {
@@ -42,7 +43,7 @@ func (c Controller) adapt(model *model2.Model) (controller.Controller, error) {
 	if err != nil {
 		return controller.Controller{}, errors.New(fmt.Sprintf("Json error in Controller : %s", c.Name))
 	}
-	return controller.Create(c.Name, model, JSON, c.Cors), nil
+	return controller.Create(c.Name, model, JSON, c.Cors, c.Cache), nil
 }
 
 // Struct representing a single field of a json spec

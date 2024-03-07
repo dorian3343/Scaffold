@@ -22,12 +22,13 @@ type Controller struct {
 	Model    *model.Model
 	Fallback []byte
 	cors     string
+	Cache    string
 	http.Handler
 }
 
 /* Constructor for the controller, outside of package used like this 'Controller.Create(x,y)' */
-func Create(name string, datamodel *model.Model, fallback []byte, cors string) Controller {
-	return Controller{Name: name, Model: datamodel, Fallback: fallback, cors: cors}
+func Create(name string, datamodel *model.Model, fallback []byte, cors string, cache string) Controller {
+	return Controller{Name: name, Model: datamodel, Fallback: fallback, cors: cors, Cache: cache}
 }
 
 func (c Controller) handleNoModelRequest(w http.ResponseWriter) {
@@ -39,17 +40,20 @@ func (c Controller) handleNoModelRequest(w http.ResponseWriter) {
 		return
 	}
 }
-func (c Controller) handleCors(w http.ResponseWriter) {
+func (c Controller) handleHeaders(w http.ResponseWriter) {
 	if c.cors != "" {
 		w.Header().Set("Access-Control-Allow-Origin", c.cors)
+	}
+	if c.Cache != "" {
+		w.Header().Set("Cache-Control", c.Cache)
 	}
 
 }
 
 /* logic is the function to fulfill the http.Handler interface. */
 func (c Controller) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	//Enable cors
-	c.handleCors(w)
+	//set Headers
+	c.handleHeaders(w)
 	if c.Model == nil {
 		c.handleNoModelRequest(w)
 	} else {
@@ -61,7 +65,7 @@ func (c Controller) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 			return
 		}
-
+		log.Trace().Msg("Building Query in : " + c.Name)
 		query, err := c.Model.Querybuilder(body)
 		if err != nil {
 			if err.Error() == "JSON request does not match spec" {
@@ -74,7 +78,7 @@ func (c Controller) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 		}
-
+		log.Trace().Msg("Running Query in : " + c.Name)
 		// Make the db query
 		result, err := c.Model.Query(query)
 		if err != nil {
@@ -120,6 +124,7 @@ func (c Controller) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 
 		// Send the JSON response
+		log.Trace().Msg("Sending response in  : " + c.Name)
 		_, err = w.Write(resp)
 		if err != nil {
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)

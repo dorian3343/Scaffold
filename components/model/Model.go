@@ -37,13 +37,15 @@ func (m Model) Querybuilder(x []byte) (string, error) {
 
 	err := json.Unmarshal(x, jsonRequest)
 	if err != nil {
-		return "", errors.New("failed to decode JSON data: " + err.Error())
+		log.Debug().Msg("Failed to decode :" + string(x))
+		return "", errors.New("Failed to decode JSON data: " + err.Error())
 	}
 	//Basic type caching
 	var GeneratedType reflect.Type
 	if m.generatedTypeCache == nil {
 		GeneratedType = GenerateStructFromJsonMap(*m.json)
 		m.generatedTypeCache = &GeneratedType
+		log.Trace().Msg("Caching Type for model : " + m.Name)
 	} else {
 		GeneratedType = *m.generatedTypeCache
 	}

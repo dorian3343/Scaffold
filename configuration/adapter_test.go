@@ -46,7 +46,7 @@ func TestModelAdaptModel(t *testing.T) {
 
 func TestModelAdaptController(t *testing.T) {
 
-	sample := Controller{Name: "name", Fallback: "ok", Model: "", Cors: "*"}
+	sample := Controller{Name: "name", Fallback: "ok", Model: "", Cors: "*", Cache: ""}
 	x, err := sample.adapt(nil)
 	// Check if error is nil
 	if err != nil {
@@ -54,7 +54,7 @@ func TestModelAdaptController(t *testing.T) {
 	}
 
 	// Create an expected controller
-	expected := controller.Create("name", nil, []byte(`"ok"`), "*")
+	expected := controller.Create("name", nil, []byte(`"ok"`), "*", "")
 
 	// Check if the adapted model is equal to the expected model using reflection
 	if !reflect.DeepEqual(x, expected) {
