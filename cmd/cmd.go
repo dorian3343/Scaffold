@@ -106,6 +106,16 @@ func GenerateDoc(path string) {
 			docString.WriteString("This route returns:\n```JSON\n" + string(value.Fallback) + "\n```\n")
 		} else {
 			docString.WriteString("This route runs the query:\n ```SQL\n" + value.Model.GetQuery() + "\n```\n")
+			if value.Model.GetJsonTemplate().Len() != 0 {
+				jsonT := value.Model.GetJsonTemplate()
+				// Generate JSON example
+				docString.WriteString("JSON Specification:\n```json\n{\n")
+				for _, Name := range jsonT.Keys() {
+					T, _ := jsonT.Get(Name)
+					docString.WriteString(fmt.Sprintf("  %s : %s\n", Name, T))
+				}
+				docString.WriteString("}\n```\n")
+			}
 			docString.WriteString("and fallsback to:\n ```JSON\n" + string(value.Fallback) + "\n```\n")
 		}
 	}
