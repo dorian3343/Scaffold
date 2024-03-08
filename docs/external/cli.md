@@ -13,15 +13,16 @@ Start's your scaffold project, it requires a main.yml file to start.
 ```batch
 Scaffold run [project name]
 ```
-You can use this to run the current directory.
-```
-Scaffold run .
-```
 
 ## init
 Create a new Scaffold project.
 ```batch
 Scaffold init [project name]
+```
+## audit
+Checks for naming issues and possible conflicts in a Scaffold project.
+```batch
+Scaffold audit [project name]
 ```
 
 ## auto-doc (experimental feature)

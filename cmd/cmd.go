@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"service/configuration"
+	"service/misc"
 	"slices"
 	"strings"
 )
@@ -19,7 +20,8 @@ List of commands:
 	version   print out your scaffold version
 	run       run the scaffold from a config in a specified directory
 	init	  creates a new project from a template  
-	auto-doc  generates api documentation for your app`)
+	auto-doc  generates api documentation for your app
+	audit	  checks your project for potential error's'`)
 	fmt.Println("\nTool by Dorian Kalaczyński")
 	os.Exit(0)
 
@@ -132,4 +134,68 @@ func GenerateDoc(path string) {
 			fmt.Println(err)
 		}
 	}(file)
+}
+func Audit(path string) {
+	// Generate the config struct first
+	conf, _ := configuration.Setup(path + "/main.yml")
+
+	// Track seen names
+	seenNames := make(map[string]bool)
+
+	// Track if any warnings were found
+	foundWarning := false
+
+	// Check controllers
+	for _, controller := range conf.Controllers {
+		if !strings.HasSuffix(controller.Name, "_controller") {
+			fmt.Printf("Naming warning -> Controller %s should end with '_controller'\n", controller.Name)
+			foundWarning = true
+		}
+		if controller.Name != strings.ToLower(controller.Name) {
+			fmt.Printf("Naming warning -> Controller %s should be all lowercase\n", controller.Name)
+			foundWarning = true
+		}
+		if seenNames[controller.Name] {
+			fmt.Printf("Duplicate warning -> Controller %s is duplicated\n", controller.Name)
+			foundWarning = true
+		} else {
+			seenNames[controller.Name] = true
+		}
+		if slices.Equal(controller.Fallback, []byte("null")) {
+			fmt.Printf("General warning -> Controller %s has an empty fallback\n", controller.Name)
+			foundWarning = true
+		}
+	}
+
+	// Check models
+	for _, model := range conf.Models {
+		if !strings.HasSuffix(model.Name, "_model") {
+			fmt.Printf("Naming warning -> Model %s should end with '_model'\n", model.Name)
+			foundWarning = true
+		}
+		if model.Name != strings.ToLower(model.Name) {
+			fmt.Printf("Naming warning -> Model %s should be all lowercase\n", model.Name)
+			foundWarning = true
+		}
+
+		jsonT := model.GetJsonTemplate()
+		for _, Name := range jsonT.Keys() {
+			if Name != misc.Capitalize(Name) {
+				fmt.Printf("Naming warning -> Model %s has non-capitalized JSON field '%s'\n", model.Name, Name)
+				foundWarning = true
+			}
+		}
+
+		if seenNames[model.Name] {
+			fmt.Printf("Duplicate warning -> Model %s is duplicated\n", model.Name)
+			foundWarning = true
+		} else {
+			seenNames[model.Name] = true
+		}
+	}
+
+	// If no warnings were found, print a message
+	if !foundWarning {
+		fmt.Println("Success -> No warnings found during audit.")
+	}
 }
