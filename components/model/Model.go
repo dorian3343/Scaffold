@@ -77,7 +77,6 @@ func (m Model) Querybuilder(x []byte) (string, error) {
 
 }
 
-// Queries the database
 func (m Model) Query(query string) (*sql.Rows, error) {
 	rows, err := m.db.Query(query)
 	if err != nil {

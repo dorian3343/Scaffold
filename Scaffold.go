@@ -86,7 +86,7 @@ func main() {
 		elapsed := end.Sub(start)
 		log.Info().Msgf("Project built in : %s", elapsed)
 
-		misc.StartHttp(conf.Server.Port)
+		misc.StartHttp(conf.Server.Port, conf.Server.Static)
 	}
 	if flag.NArg() == 0 {
 		// Print help message

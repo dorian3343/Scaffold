@@ -66,6 +66,7 @@ func (c Controller) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		log.Trace().Msg("Building Query in : " + c.Name)
+		// make the db query
 		query, err := c.Model.Querybuilder(body)
 		if err != nil {
 			if err.Error() == "JSON request does not match spec" {
@@ -79,7 +80,7 @@ func (c Controller) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 		log.Trace().Msg("Running Query in : " + c.Name)
-		// Make the db query
+		// Queries the database
 		result, err := c.Model.Query(query)
 		if err != nil {
 			log.Err(err).Msg("Something went wrong with querying database")
