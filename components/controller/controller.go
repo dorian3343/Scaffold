@@ -22,13 +22,14 @@ type Controller struct {
 	Model    *model.Model
 	Fallback []byte
 	cors     string
-	Cache    string
+	cache    string
+	verb     string
 	http.Handler
 }
 
 /* Constructor for the controller, outside of package used like this 'Controller.Create(x,y)' */
-func Create(name string, datamodel *model.Model, fallback []byte, cors string, cache string) Controller {
-	return Controller{Name: name, Model: datamodel, Fallback: fallback, cors: cors, Cache: cache}
+func Create(name string, datamodel *model.Model, fallback []byte, cors string, cache string, verb string) Controller {
+	return Controller{Name: name, Model: datamodel, Fallback: fallback, cors: cors, cache: cache, verb: verb}
 }
 
 func (c Controller) handleNoModelRequest(w http.ResponseWriter) {
@@ -44,14 +45,18 @@ func (c Controller) handleHeaders(w http.ResponseWriter) {
 	if c.cors != "" {
 		w.Header().Set("Access-Control-Allow-Origin", c.cors)
 	}
-	if c.Cache != "" {
-		w.Header().Set("Cache-Control", c.Cache)
+	if c.cache != "" {
+		w.Header().Set("Cache-Control", c.cache)
 	}
 
 }
 
 /* logic is the function to fulfill the http.Handler interface. */
 func (c Controller) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	if c.verb != "" && c.verb != r.Method {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
 	//set Headers
 	c.handleHeaders(w)
 	if c.Model == nil {
@@ -145,7 +150,6 @@ func SetupControllers(services map[string]Controller) {
 		if route == "" {
 			log.Fatal().Err(errors.New("Missing route")).Msg("Something went wrong with setting up Controllers")
 		}
-
 		http.Handle(route, handler)
 		if handler.Name == "" {
 			wrn = append(wrn, fmt.Sprintf("Empty controller for Route: '%s'", route))

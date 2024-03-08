@@ -31,7 +31,8 @@ Controllers are the point of entry for your application's users. They attach bas
 $controller:
   - name: name1 
     fallback: example 
-    model: model1 
+    model: model1
+    verb: GET
     cors: "*"
     cache: "max-age=3600, public"
 
@@ -42,6 +43,7 @@ $controller:
     
     # model -> Attaches data handling to a controller, read up on them at the 'Model' section.
     
+    # verb -> Only allows requests pf this request type / request method
     # cors -> Sets a cors header value
     # cache -> Sets a cache-control header value
 ```

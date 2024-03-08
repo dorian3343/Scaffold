@@ -54,7 +54,7 @@ func TestModelAdaptController(t *testing.T) {
 	}
 
 	// Create an expected controller
-	expected := controller.Create("name", nil, []byte(`"ok"`), "*", "")
+	expected := controller.Create("name", nil, []byte(`"ok"`), "*", "", "")
 
 	// Check if the adapted model is equal to the expected model using reflection
 	if !reflect.DeepEqual(x, expected) {
