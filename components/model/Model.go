@@ -25,6 +25,9 @@ func Create(name string, db *sql.DB, template string, JSON *jsonmap.Map) Model {
 func (m Model) GetQuery() string {
 	return m.queryTemplate
 }
+func (m Model) GetJsonTemplate() *jsonmap.Map {
+	return m.json
+}
 
 // Fills out the query queryTemplate with data from the json
 func (m Model) Querybuilder(x []byte) (string, error) {
