@@ -8,6 +8,7 @@ import (
 	"github.com/metalim/jsonmap"
 	"service/components/controller"
 	model2 "service/components/model"
+	"strings"
 )
 
 // ConfigPrimitiveTypes should include all the non-critical structs and their methods
@@ -35,6 +36,8 @@ type Controller struct {
 	Name     string      `yaml:"name"`
 	Model    string      `yaml:"model"`
 	Cors     string      `yaml:"cors"`
+	Cache    string      `yaml:"cache"`
+	Verb     string      `yaml:"verb"`
 }
 
 func (c Controller) adapt(model *model2.Model) (controller.Controller, error) {
@@ -42,7 +45,15 @@ func (c Controller) adapt(model *model2.Model) (controller.Controller, error) {
 	if err != nil {
 		return controller.Controller{}, errors.New(fmt.Sprintf("Json error in Controller : %s", c.Name))
 	}
-	return controller.Create(c.Name, model, JSON, c.Cors), nil
+	verb := strings.ToUpper(c.Verb)
+	switch verb {
+	case "GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS", "HEAD", "":
+	default:
+		err := errors.New("Unrecognized HTTP method")
+		fmt.Println(err)
+		return controller.Controller{}, err
+	}
+	return controller.Create(c.Name, model, JSON, c.Cors, c.Cache, verb), nil
 }
 
 // Struct representing a single field of a json spec

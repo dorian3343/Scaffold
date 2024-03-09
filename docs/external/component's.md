@@ -17,7 +17,7 @@ server:
       route: /Example 
   
   # port -> Set's the server's port to the int value.
-  # static -> display's the static content of the input server @ path '/'
+  # static -> display's the static content of the input server @ path '/'. Uses file based routing
   # target-log -> Set's the target file for logging, if left empty it only prints to stdout
   # $service -> Connects an endpoint to a Scaffold Controller
   # controller -> Set the controller for the specific service. These can be reused. Use the controller's name.
@@ -31,8 +31,10 @@ Controllers are the point of entry for your application's users. They attach bas
 $controller:
   - name: name1 
     fallback: example 
-    model: model1 
-    cors: "*" 
+    model: model1
+    verb: GET
+    cors: "*"
+    cache: "max-age=3600, public"
 
     # name -> This is the name of the controller. YOou use this to attach it to other component's
     
@@ -41,7 +43,9 @@ $controller:
     
     # model -> Attaches data handling to a controller, read up on them at the 'Model' section.
     
-    # cors -> Sets a cors value to input string, without setting it, nothing gets set
+    # verb -> Only allows requests pf this request type / request method
+    # cors -> Sets a cors header value
+    # cache -> Sets a cache-control header value
 ```
 ### Database
 ```yaml

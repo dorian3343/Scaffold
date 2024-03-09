@@ -2,7 +2,12 @@
 
 ---
 Scaffold is a opinionated framework, naming decisions have already been made when it comes to naming.
-
+## Before Deploying
+Before deploying your Scaffold app, it's a good idea to run these two commands to generate an auto-doc.md and find potential bug's.
+```batch
+Scaffold auto-doc [project name]
+Scaffold audit [project name]
+```
 ## Naming Conventions
 
 ---

@@ -22,12 +22,14 @@ type Controller struct {
 	Model    *model.Model
 	Fallback []byte
 	cors     string
+	cache    string
+	verb     string
 	http.Handler
 }
 
 /* Constructor for the controller, outside of package used like this 'Controller.Create(x,y)' */
-func Create(name string, datamodel *model.Model, fallback []byte, cors string) Controller {
-	return Controller{Name: name, Model: datamodel, Fallback: fallback, cors: cors}
+func Create(name string, datamodel *model.Model, fallback []byte, cors string, cache string, verb string) Controller {
+	return Controller{Name: name, Model: datamodel, Fallback: fallback, cors: cors, cache: cache, verb: verb}
 }
 
 func (c Controller) handleNoModelRequest(w http.ResponseWriter) {
@@ -39,17 +41,24 @@ func (c Controller) handleNoModelRequest(w http.ResponseWriter) {
 		return
 	}
 }
-func (c Controller) handleCors(w http.ResponseWriter) {
+func (c Controller) handleHeaders(w http.ResponseWriter) {
 	if c.cors != "" {
 		w.Header().Set("Access-Control-Allow-Origin", c.cors)
+	}
+	if c.cache != "" {
+		w.Header().Set("Cache-Control", c.cache)
 	}
 
 }
 
 /* logic is the function to fulfill the http.Handler interface. */
 func (c Controller) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	//Enable cors
-	c.handleCors(w)
+	if c.verb != "" && c.verb != r.Method {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	//set Headers
+	c.handleHeaders(w)
 	if c.Model == nil {
 		c.handleNoModelRequest(w)
 	} else {
@@ -61,7 +70,8 @@ func (c Controller) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 			return
 		}
-
+		log.Trace().Msg("Building Query in : " + c.Name)
+		// make the db query
 		query, err := c.Model.Querybuilder(body)
 		if err != nil {
 			if err.Error() == "JSON request does not match spec" {
@@ -74,8 +84,8 @@ func (c Controller) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 		}
-
-		// Make the db query
+		log.Trace().Msg("Running Query in : " + c.Name)
+		// Queries the database
 		result, err := c.Model.Query(query)
 		if err != nil {
 			log.Err(err).Msg("Something went wrong with querying database")
@@ -120,6 +130,7 @@ func (c Controller) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 
 		// Send the JSON response
+		log.Trace().Msg("Sending response in  : " + c.Name)
 		_, err = w.Write(resp)
 		if err != nil {
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -139,7 +150,6 @@ func SetupControllers(services map[string]Controller) {
 		if route == "" {
 			log.Fatal().Err(errors.New("Missing route")).Msg("Something went wrong with setting up Controllers")
 		}
-
 		http.Handle(route, handler)
 		if handler.Name == "" {
 			wrn = append(wrn, fmt.Sprintf("Empty controller for Route: '%s'", route))

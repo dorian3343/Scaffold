@@ -5,8 +5,9 @@ This folder contains all the doc's for the api and how to configure your Scaffol
 application.
 
 ## Content's:
-1. [Components](component's.md)
-2. [Good practices](good-practices.md)
+1. [Scaffold Cli](./cli.md)
+2. [Components](component's.md)
+3. [Good practices](good-practices.md)
 
 ## Flow Chart for Scaffold's API process
 Scaffold has a simple yet effective process.

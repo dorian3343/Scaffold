@@ -1,4 +1,4 @@
-# Tooling for Scaffold
+# Scaffold scripts
 
 ---
 ## Build tool (Ruby)
@@ -6,7 +6,7 @@
 ### How to run
 To run the build tool, run this command from the project root:
 ```ruby
-    ruby ./tools/build.rb
+    ruby ./scripts/build.rb
 ```
 ### What it does
 The tool will build two folders, one with a linux build and the other with a window.

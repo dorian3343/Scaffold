@@ -57,11 +57,34 @@ response = Net::HTTP.get_response(uri)
 # Convert response to JSON
 json_response = JSON.parse(response.body)
 
+
+
+
 if json_response != 69
     puts "Wrong json response received in Test 3: #{json_response}"
    system("taskkill /f /im main.exe > NUL 2>&1")
     exit 1
 end
+
+cache_found = false
+
+response.each_capitalized do |key, value|
+  if key == 'Cache-Control'
+    cache_found = true
+    if value != "max-age=3600, public"
+      puts "Wrong Cache received: #{value}"
+      system("taskkill /f /im main.exe > NUL 2>&1")
+      exit 1
+    end
+  end
+end
+
+unless cache_found
+  puts "Cache header not found"
+  system("taskkill /f /im main.exe > NUL 2>&1")
+  exit 1
+end
+
 
 # Kill the process
 system("taskkill /f /im main.exe > NUL 2>&1")

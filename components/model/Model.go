@@ -25,6 +25,9 @@ func Create(name string, db *sql.DB, template string, JSON *jsonmap.Map) Model {
 func (m Model) GetQuery() string {
 	return m.queryTemplate
 }
+func (m Model) GetJsonTemplate() *jsonmap.Map {
+	return m.json
+}
 
 // Fills out the query queryTemplate with data from the json
 func (m Model) Querybuilder(x []byte) (string, error) {
@@ -37,13 +40,15 @@ func (m Model) Querybuilder(x []byte) (string, error) {
 
 	err := json.Unmarshal(x, jsonRequest)
 	if err != nil {
-		return "", errors.New("failed to decode JSON data: " + err.Error())
+		log.Debug().Msg("Failed to decode :" + string(x))
+		return "", errors.New("Failed to decode JSON data: " + err.Error())
 	}
 	//Basic type caching
 	var GeneratedType reflect.Type
 	if m.generatedTypeCache == nil {
 		GeneratedType = GenerateStructFromJsonMap(*m.json)
 		m.generatedTypeCache = &GeneratedType
+		log.Trace().Msg("Caching Type for model : " + m.Name)
 	} else {
 		GeneratedType = *m.generatedTypeCache
 	}
@@ -75,7 +80,6 @@ func (m Model) Querybuilder(x []byte) (string, error) {
 
 }
 
-// Queries the database
 func (m Model) Query(query string) (*sql.Rows, error) {
 	rows, err := m.db.Query(query)
 	if err != nil {

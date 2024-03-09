@@ -69,7 +69,6 @@ func (c configuration) adapt() (*Configuration, error) {
 	var databaseClosure func()
 
 	if c.Database.Path == "" || c.Database.InitQuery == "" {
-		log.Warn().Msg("Missing Database in main.yml : Models are disabled")
 		// Set all the models to nil, effectively disabling models
 		for i := 0; i < len(c.Controllers); i++ {
 			newController, err := c.Controllers[i].adapt(nil)

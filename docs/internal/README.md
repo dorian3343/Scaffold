@@ -12,4 +12,4 @@ This folder contains all the documentation for how Scaffold works. Read through 
 
 ## Content's:
 1. [Project Structure](project-structure.md)
-2. [Project Tools](tools.md)
+2. [Project Scripts](scripts.md)

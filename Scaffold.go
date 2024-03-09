@@ -43,6 +43,17 @@ func main() {
 		}
 	}
 
+	//audit a project
+	if len(os.Args) > 1 && os.Args[1] == "audit" {
+		if len(os.Args) > 2 {
+			cmd.Audit(os.Args[2])
+			os.Exit(0)
+		} else {
+			fmt.Println("Error: Missing project name")
+			os.Exit(1)
+		}
+	}
+
 	// Run a scaffold app in current dir or a specified
 	if len(os.Args) > 1 && os.Args[1] == "run" {
 		entrypoint := "./main.yml"
